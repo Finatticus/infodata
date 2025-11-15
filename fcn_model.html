@@ -1,0 +1,251 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<button class="back-btn" onclick="window.location.href='index.html'">← 返回主頁</button>
+<title>FCN 評價模型</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body { font-family: "Segoe UI", sans-serif; background-color: #f0f4f8; padding: 20px; color: #333; }
+h1 { text-align:center; color:#004c91; margin-bottom:20px; } .container { max-width: 1000px; margin:auto; background:#fff; padding:20px 30px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1);} .input-group { margin-bottom:15px; } .input-group label { display:block; font-weight:bold; margin-bottom:5px; } .input-group input { padding:6px 10px; width:100%; max-width:300px; } button { background-color:#007BFF; color:white; border:none; padding:10px 20px; border-radius:6px; cursor:pointer; font-size:14px; margin-top:10px;} canvas { margin-top:20px; } table { width:100%; border-collapse:collapse; margin-top:20px; } table, th, td { border:1px solid #ddd; padding:8px; text-align:center; } th { background:#f0f4ff; color:#0077cc; } #progress { margin-top:10px; font-weight:bold; color:#0077cc; } </style> </head> <body> <div class="container"> <h1>FCN 評價模型</h1>
+
+<div class="input-group">
+<label>Coupon (%)</label>
+<input type="number" id="coupon" value="14.84" step="0.01"> </div>
+
+<div class="input-group">
+<label>Underlying 股票代號 (最多3個，用逗號分隔)</label>
+<input type="text" id="underlying" value="NVDA,AAPL,MSFT"> </div>
+
+<div class="input-group">
+<label>KO, Strike, KI (%) (逗號分隔)</label>
+<input type="text" id="koStrikeKi" value="100,75,65"> </div>
+
+<div class="input-group">
+<label>天期 (交易日數)</label>
+<input type="number" id="tenor" value="131"> </div>
+
+<div class="input-group">
+<label>KO Start 天數</label>
+<input type="number" id="koStart" value="25"> </div>
+
+<div class="input-group">
+<label>Risk-free rate (%)</label>
+<input type="number" id="rfr" value="5.1743" step="0.0001"> </div>
+
+<div class="input-group">
+<label>CDS (%)</label>
+<input type="number" id="cds" value="0.18198" step="0.0001"> </div>
+
+<button onclick="runSimulation()">運行模擬</button>
+<div id="progress"></div>
+
+<h2>結果</h2>
+<canvas id="scenarioChart"></canvas>
+<canvas id="worstChart"></canvas>
+<table id="varTable">
+<tr><th>信心水準</th><th>VaR</th><th>CVaR</th></tr>
+</table>
+</div>
+
+<script>
+// 隨機生成標準正態分布
+function randn_bm() {
+    let u=0,v=0;
+    while(u===0) u=Math.random();
+    while(v===0) v=Math.random();
+    return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+// Cholesky 分解
+function cholesky(matrix){
+    let n=matrix.length;
+    let L=Array(n).fill(0).map(()=>Array(n).fill(0));
+    for(let i=0;i<n;i++){
+        for(let j=0;j<=i;j++){
+            let sum=0;
+            for(let k=0;k<j;k++) sum+=L[i][k]*L[j][k];
+            L[i][j]=i===j?Math.sqrt(matrix[i][i]-sum):(1.0/(L[j][j])*(matrix[i][j]-sum));
+        }
+    }
+    return L;
+}
+
+// 抓 Yahoo Finance 歷史價 (近6個月)
+async function fetchClose(ticker){
+    const end = Math.floor(Date.now()/1000);
+    const start = end - 180*24*3600; // 6個月
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?period1=${start}&period2=${end}&interval=1d`;
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    const resp = await fetch(proxyUrl);
+    const data = await resp.json();
+    if(!data.chart.result) throw `抓不到 ${ticker} 資料`;
+    const closes = data.chart.result[0].indicators.quote[0].close.filter(v=>!isNaN(v));
+    if(closes.length<2) throw `股價不足: ${ticker}`;
+    return closes;
+}
+
+// 計算年化波動率與相關係數矩陣
+function calcVolCorr(priceArrays){
+    const n = priceArrays.length;
+    const logRets = priceArrays.map(prices=>{
+        let arr=[]; for(let i=1;i<prices.length;i++) arr.push(Math.log(prices[i]/prices[i-1])); return arr;
+    });
+    const vols = logRets.map(r=>{
+        const mean = r.reduce((a,b)=>a+b,0)/r.length;
+        const variance = r.reduce((a,b)=>a+Math.pow(b-mean,2),0)/(r.length-1);
+        return Math.sqrt(variance)*Math.sqrt(252);
+    });
+    const corr = Array(n).fill(0).map(()=>Array(n).fill(0));
+    for(let i=0;i<n;i++){
+        for(let j=0;j<n;j++){
+            if(i===j) corr[i][j]=1;
+            else{
+                const x=logRets[i], y=logRets[j];
+                const mx=x.reduce((a,b)=>a+b,0)/x.length;
+                const my=y.reduce((a,b)=>a+b,0)/y.length;
+                let cov=0;
+                for(let k=0;k<x.length;k++) cov+= (x[k]-mx)*(y[k]-my);
+                cov/= (x.length-1);
+                corr[i][j]=cov/(vols[i]/Math.sqrt(252)*vols[j]/Math.sqrt(252));
+            }
+        }
+    }
+    return {vols,corr};
+}
+
+// 主模擬函數
+async function runSimulation(){
+    const progress = document.getElementById("progress");
+    progress.innerHTML="抓取歷史股價中...";
+    const coupon = parseFloat(document.getElementById("coupon").value)/100;
+    const tenor = parseInt(document.getElementById("tenor").value);
+    const koStart = parseInt(document.getElementById("koStart").value);
+    const r = parseFloat(document.getElementById("rfr").value)/100;
+    const cds = parseFloat(document.getElementById("cds").value)/100;
+    const nSim = 1000;
+    const P = 100;
+
+    const tickers = document.getElementById("underlying").value.split(",").map(x=>x.trim().toUpperCase()).slice(0,3);
+    if(tickers.length===0){progress.innerHTML="請輸入至少一個股票代號"; return;}
+    const [koPerc,strikePerc,kiPerc] = document.getElementById("koStrikeKi").value.split(",").map(x=>parseFloat(x.trim())/100);
+
+    let priceData=[];
+    try{
+        for(let i=0;i<tickers.length;i++){
+            progress.innerHTML=`抓取 ${tickers[i]} (${i+1}/${tickers.length}) 歷史股價...`;
+            const closes = await fetchClose(tickers[i]);
+            priceData.push(closes);
+        }
+    }catch(err){
+        progress.innerHTML="❌ "+err;
+        return;
+    }
+
+    progress.innerHTML="計算波動率與相關係數...";
+    const {vols,corr} = calcVolCorr(priceData);
+    const L = cholesky(corr);
+
+    // KO, K, KI
+    const underlying = priceData.map(arr=>arr[arr.length-1]);
+    const KO = underlying.map(x=>x*koPerc);
+    const K = underlying.map(x=>x*strikePerc);
+    const KI = underlying.map(x=>x*kiPerc);
+
+    let Payoff = Array(nSim).fill(0);
+    let Scenario = Array(nSim).fill(0).map(()=>Array(8).fill(0));
+    let MRscenario = Array(nSim).fill(0).map(()=>Array(underlying.length).fill(0));
+    let Period = Array(nSim).fill(0);
+
+    progress.innerHTML="開始模擬...";
+    for(let n=0;n<nSim;n++){
+        if(n%50===0) progress.innerHTML=`模擬進度: ${n}/${nSim}`;
+        let St = Array(underlying.length).fill(0).map(()=>Array(tenor+1).fill(0));
+        for(let i=0;i<underlying.length;i++) St[i][0]=underlying[i];
+        let KItouch = Array(underlying.length).fill(0);
+        let KOtouch = Array(underlying.length).fill(0);
+
+        for(let d=1;d<=tenor;d++){
+            let Z = Array(underlying.length).fill(0).map(()=>randn_bm());
+            let correlatedZ = Array(underlying.length).fill(0);
+            for(let i=0;i<underlying.length;i++){
+                let sum=0; for(let j=0;j<underlying.length;j++) sum+=L[i][j]*Z[j]; correlatedZ[i]=sum;
+            }
+            for(let i=0;i<underlying.length;i++){
+                St[i][d] = St[i][d-1]*Math.exp((r-0.5*vols[i]*vols[i])*(1/252)+vols[i]*Math.sqrt(1/252)*correlatedZ[i]);
+                if(St[i][d]<KI[i]) KItouch[i]=1;
+                if(d>koStart && St[i][d]>KO[i]) KOtouch[i]=1;
+            }
+
+            if(KOtouch.every(v=>v===1)){
+                Payoff[n] = P*(1+((d-5)/252*coupon))*Math.exp(-(r+cds)*(d/252));
+                Period[n] = d;
+                break;
+            }
+
+            if(d===tenor){
+                if(St.every((s,i)=>s[d]>=K[i])) Scenario[n][6]=1;
+                else if(KItouch.reduce((a,b)=>a+b,0)===0) Scenario[n][6]=1;
+                else {
+                    let MR = Math.min(...St.map((s,i)=>s[d]/K[i]));
+                    let idx = St.map((s,i)=>s[d]/K[i]).indexOf(MR);
+                    MRscenario[n][idx]=1;
+                    Scenario[n][7]=1;
+                    Payoff[n] = ((P*((d-5)/252*coupon))+(P*MR))*Math.exp(-(r+cds)*(d/252));
+                }
+                Period[n]=d;
+            }
+        }
+    }
+
+    progress.innerHTML="模擬完成，生成圖表與表格...";
+
+    // Scenario chart
+    const totalScenario = Array(8).fill(0);
+    Scenario.forEach(s=>s.forEach((v,i)=>totalScenario[i]+=v));
+    const totalScenarioPct = totalScenario.map(v=>v/nSim*100);
+
+    const ctx1 = document.getElementById('scenarioChart').getContext('2d');
+    new Chart(ctx1, {
+        type:'bar',
+        data:{
+            labels:['1','2','3','4','5','6','7','8'],
+            datasets:[{label:'Scenario Probability (%)', data:totalScenarioPct, backgroundColor:'#0077cc'}]
+        },
+        options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+    });
+
+    // Worst underlying chart
+    const totalMR = Array(underlying.length).fill(0);
+    MRscenario.forEach(s=>s.forEach((v,i)=>totalMR[i]+=v));
+    const totalMRpct = totalMR.map(v=>v/nSim*100);
+
+    const ctx2 = document.getElementById('worstChart').getContext('2d');
+    new Chart(ctx2, {
+        type:'bar',
+        data:{
+            labels:tickers,
+            datasets:[{label:'Worst Underlying Probability (%)', data:totalMRpct, backgroundColor:'#ff6600'}]
+        },
+        options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+    });
+
+    // VaR/CVaR table
+    const sorted = [...Payoff].sort((a,b)=>a-b);
+    const varLevels = [0.8,0.85,0.9,0.95,0.99];
+    const table = document.getElementById('varTable');
+    table.innerHTML='<tr><th>信心水準</th><th>VaR</th><th>CVaR</th></tr>';
+    varLevels.forEach(l=>{
+        let idx = Math.floor(nSim*(1-l));
+        let VaR = sorted[idx];
+        let CVaR = sorted.slice(0,idx).reduce((a,b)=>a+b,0)/idx;
+        let tr = document.createElement('tr');
+        tr.innerHTML=`<td>${l*100}%</td><td>${VaR.toFixed(2)}</td><td>${CVaR.toFixed(2)}</td>`;
+        table.appendChild(tr);
+    });
+
+    progress.innerHTML="全部完成 ✅";
+}
+</script>
+</body>
+</html>
