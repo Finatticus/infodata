@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>📊 歷史波動率計算器</title>
+<style>
+body {
+  font-family: "Segoe UI", sans-serif;
+  background-color: #f0f4f8;
+  padding: 40px;
+  color: #333;
+}
+h1 {
+  text-align: center;
+  color: #004c91;
+  margin-bottom: 20px;
+}
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08); } label {
+  font-weight: bold;
+}
+input[type=text], input[type=number] {
+  padding: 8px 10px;
+  margin-bottom: 15px;
+  width: 90%;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+button {
+  padding: 10px 20px;
+  background: #007BFF;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  margin-top: 5px;
+}
+button:hover {
+  background: #0056b3;
+}
+.result {
+  margin-top: 20px;
+  font-weight: bold;
+  font-size: 15px;
+  color: #004c91;
+}
+.history {
+  margin-top: 25px;
+  background: #f9fbfc;
+  border-radius: 10px;
+  padding: 15px;
+  border: 1px solid #dce3eb;
+}
+.history h3 {
+  margin-top: 0;
+  color: #0056b3;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.grid label {
+  display: block;
+  text-align: center;
+}
+#exportBtn {
+  background-color: #28a745;
+}
+#exportBtn:hover {
+  background-color: #1e7e34;
+}
+</style>
+</head>
+<body>
+<button class="back-btn" onclick="window.location.href='index.html'">← 返回主頁</button>
+<div class="container">
+<h1>歷史波動率計算</h1>
+
+<div style="margin-bottom:15px;">
+  <p><b>使用說明：</b></p>
+  <small>
+    1️⃣ 股票代號以 Yahoo Finance 為主（日股加 .T，美股直接輸入代號）。<br>
+    2️⃣ 點「開始計算」後，會依序計算各股票過去 N 個月波動率。<br>
+    3️⃣ 資料來源：Yahoo Finance。
+  </small>
+</div>
+
+<div class="grid">
+  <div>
+    <label>股票代號 1：</label>
+    <input type="text" id="ticker1" placeholder="例如 NVDA">
+  </div>
+  <div>
+    <label>股票代號 2：</label>
+    <input type="text" id="ticker2" placeholder="例如 TSM">
+  </div>
+  <div>
+    <label>股票代號 3：</label>
+    <input type="text" id="ticker3" placeholder="例如 7203.T">
+  </div>
+</div>
+
+<label>月份：</label>
+<input type="number" id="months" min="1" max="12" value="6">
+
+<button onclick="calculateMultipleVol()">開始計算</button>
+<button id="exportBtn" onclick="exportToExcel()">匯出查詢紀錄</button>
+
+<div class="result" id="volResult"></div>
+
+<div class="history" id="historySection">
+  <h3>📜 查詢紀錄</h3>
+  <div id="historyLog">目前沒有查詢紀錄</div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+let historyRecords = []; // 每一筆都是 {時間, 股票, 月份, 波動度}
+
+async function calculateVol(ticker, months) {
+  const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=${months}mo&interval=1d`;
+  const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
+  try {
+    const response = await fetch(proxyUrl);
+    const data = await response.json();
+    const closes = data.chart.result[0].indicators.quote[0].close.filter(v => !isNaN(v));
+    if (closes.length < 2) return null;
+    const logReturns = [];
+    for (let i = 1; i < closes.length; i++) {
+      logReturns.push(Math.log(closes[i] / closes[i - 1]));
+    }
+    const mean = logReturns.reduce((a,b)=>a+b,0)/logReturns.length;
+    const variance = logReturns.reduce((a,b)=>a+Math.pow(b-mean,2),0)/(logReturns.length-1);
+    const vol = Math.sqrt(variance) * Math.sqrt(252);
+    return vol;
+  } catch {
+    return null;
+  }
+}
+
+async function calculateMultipleVol() {
+  const tickers = [
+    document.getElementById("ticker1").value.trim().toUpperCase(),
+    document.getElementById("ticker2").value.trim().toUpperCase(),
+    document.getElementById("ticker3").value.trim().toUpperCase()
+  ].filter(t => t !== "");
+
+  const monthsInput = document.getElementById("months").value.trim();
+  const months = parseInt(monthsInput);
+  const resultDiv = document.getElementById("volResult");
+  const historyLog = document.getElementById("historyLog");
+
+  // 驗證月份
+  if (!/^\d+$/.test(monthsInput) || months < 1 || months > 12) {
+    alert("❌ 月份必須是 1～12 的整數！");
+    return;
+  }
+
+  if (tickers.length === 0) {
+    resultDiv.innerHTML = "⚠️ 請至少輸入一檔股票代號。";
+    return;
+  }
+
+  resultDiv.innerHTML = "⏳ 正在計算中，請稍候...";
+  let output = "";
+  const now = new Date().toLocaleString();
+
+  for (let ticker of tickers) {
+    const vol = await calculateVol(ticker, months);
+    if (vol !== null) {
+      const text = `${ticker}: ${months} 個月波動率 = ${(vol*100).toFixed(2)}%`;
+      output += `✅ ${text}<br>`;
+      // 記錄一行
+      historyRecords.unshift({
+        時間: now,
+        股票代號: ticker,
+        月份: months,
+        波動度: (vol*100).toFixed(2) + "%"
+      });
+    } else {
+      output += `❌ ${ticker}: 無法取得資料<br>`;
+      historyRecords.unshift({
+        時間: now,
+        股票代號: ticker,
+        月份: months,
+        波動度: "查詢失敗"
+      });
+    }
+  }
+
+  resultDiv.innerHTML = output;
+
+  // 更新歷史紀錄顯示
+  const historyHTML = historyRecords.map(r => {
+    return `[${r.時間}] ${r.股票代號} (${r.月份}個月) 波動率: ${r.波動度}<hr>`;
+  }).join("");
+  historyLog.innerHTML = historyHTML || "目前沒有查詢紀錄";
+}
+
+// 匯出 Excel
+function exportToExcel() {
+  if (historyRecords.length === 0) {
+    alert("目前沒有查詢紀錄可匯出。");
+    return;
+  }
+  // 每次查詢拆成多行已經符合 Excel 需求
+  const ws = XLSX.utils.json_to_sheet(historyRecords, {header: ["時間","股票代號","月份","波動度"]});
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Volatility History");
+  XLSX.writeFile(wb, "波動率查詢紀錄.xlsx");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>TEST</title>
+    <style>
+        /* 1️⃣ 整體背景與字體 */
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background-color: #f0f4f8;
+            padding: 40px;
+            color: #333;
+        }
+
+        /* 2️⃣ 主標題 */
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+            color: #004c91;
+        }
+
+        /* 3️⃣ Accordion 樣式 */
+        .accordion {
+            background-color: #ffffff;
+            color: #333;
+            cursor: pointer;
+            padding: 20px 25px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 20px;
+            font-weight: bold;
+            transition: 0.4s;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-top: 15px;
+        }
+
+        /* 滑鼠移過 Accordion */
+        .active, .accordion:hover {
+            background-color: #d0e6ff;
+        }
+
+        /* 4️⃣ Accordion 內 panel */
+        .panel {
+            padding: 15px 20px;
+            background-color: #fff;
+            display: none;
+            overflow: hidden;
+            border-radius: 0 0 12px 12px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 15px;
+        }
+
+        /* 5️⃣ 商品卡片 */
+        .product {
+            background: #f9faff;
+            border-radius: 12px;
+            padding: 18px 22px;
+            margin: 12px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        /* hover 浮起 + 微放大 */
+        .product:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        /* 可點擊的商品滑鼠變手指 */
+        .product.clickable {
+            cursor: pointer;
+        }
+
+        /* 商品標題 */
+        .product h3 {
+            margin: 0;
+            color: #0077cc;
+        }
+
+        /* 商品描述 */
+        .product p {
+            color: #555;
+            margin-top: 5px;
+            font-size: 15px;
+        }
+
+        /* 6️⃣ 功能區容器 */
+        .tools-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        /* 功能按鈕 */
+        .tool-btn {
+            flex: 1 1 calc(50% - 15px);
+            background-color: #e0f0ff;
+            color: #0077cc;
+            font-weight: 600;
+            text-align: center;
+            padding: 15px 0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .tool-btn:hover {
+            background-color: #cce4ff;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        /* 小螢幕響應 */
+        @media (max-width: 600px) {
+            .tool-btn {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📊 結構型商品專區</h1>
+
+    <!-- Coupon 類商品 -->
+    <button class="accordion">💰 Coupon 類商品</button>
+    <div class="panel">
+        <div class="product clickable" onclick="window.location.href='1_fcn.html'"><h3>Fixed Coupon Note (FCN)</h3><p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，透過將債券與選擇權結合，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。其特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破約定門檻，投資人可能損失部分或全部本金。</p></div>
+        <div class="product clickable" onclick="window.location.href='2_stepdown.html'"><h3>Stepdown FCN</h3><p>Stepdown FCN是從FCN延伸出來的結構型金融商品，設有「每月遞減的提前出場價」，提高了在到期前提前出場並鎖定收益的機會。</p></div>
+        <div class="product clickable" onclick="window.location.href='3_bullet.html'"><h3>Bullet FCN</h3><p>Bullet FCN是一種固定配息的結構型商品，商品利息只在第一個配息日配發，所以越早提前出場，換算的年化配息率越高，適合在多頭市場時選擇的架構。</p></div>
+        <div class="product clickable" onclick="window.location.href='4_dran.html'"><h3>Daily Range Accrual Note (DRAN)</h3><p>Daily Range Accrual (DRA)，中文:「每日區間計息結構型商品」，是一種結構型金融商品，其相對於FCN的高配息來自於連結標的的每日股價表現是否落在約定的「計息區間」內。若每日股價皆符合條件，投資人便可獲得計息；若股價未在區間內，則無法獲得該日的利息。 </p></div>
+        <div class="product clickable" onclick="window.location.href='bln.html'"><h3>Bond Link Note (BLN)</h3><p>待定</p></div>
+    </div>
+
+    <!-- 紅利增強類商品 -->
+    <button class="accordion">📈 紅利增強類商品</button>
+    <div class="panel">
+        <div class="product clickable" onclick="window.location.href='ben.html'"><h3>Regular BEN</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='benlb.html'"><h3>BEN with Lookback</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='dcn.html'"><h3>Digital Note (DCN)</h3><p>以外幣存款為基礎，收益取決於匯率表現。</p></div>
+        <div class="product clickable" onclick="window.location.href='superben.html'"><h3>Super BEN</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='cben.html'"><h3>Callable BEN</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='booster.html'"><h3>Booster</h3><p>待定</p></div>
+    </div>
+
+    <!-- 其他股權結構型商品 -->
+    <button class="accordion">📊 其他股權結構型商品</button>
+    <div class="panel">
+        <div class="product clickable" onclick="window.location.href='twinwin_p.html'"><h3>保本 Twinwin</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='twinwin_n.html'"><h3>不保本 Twinwin</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='sharkfin.html'"><h3>KO Sharkfin</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='decumulator.html'"><h3>Decumulator Note</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='accumulator.html'"><h3>Accumulator Note</h3><p>待定</p></div>
+    </div>
+
+    <!-- 利率結構型商品 -->
+    <button class="accordion">🏦 利率結構型商品</button>
+    <div class="panel">
+        <div class="product clickable" onclick="window.location.href='steepener.html'"><h3>Steepener</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='inverse.html'"><h3>Inverse Floater</h3><p>待定</p></div>
+        <div class="product clickable" onclick="window.location.href='drapgn.html'"><h3>DRAPGN</h3><p>待定</p></div>
+    </div>
+
+
+<!-- 🧰 功能區 -->
+<button class="accordion">🛠 功能工具</button>
+    <div class="panel">
+        <div class="tools-container">
+        <!-- 內部功能 -->
+        <div class="tool-btn internal" onclick="window.location.href='fcn_model.html'">
+            ⚙️ FCN評價模型
+        </div>
+        <div class="tool-btn internal" onclick="window.location.href='volatility_calc.html'">
+            📊 歷史波動率計算
+        </div>
+
+        <!-- 外部連結 -->
+        <a class="tool-btn external" href="https://finance.yahoo.com/" target="_blank">
+            🌐 Yahoo Finance
+        </a>
+        <a class="tool-btn external" href="https://www.bloomberg.com/asia" target="_blank">
+            🌐 Bloomberg
+        </a>
+    </div>
+</div>
+
+<style>
+/* 🧩 功能區樣式升級 */
+.tools-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #e8f3ff 0%, #f7fbff 100%);
+    border-radius: 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    justify-content: space-around;
+}
+
+/* 工具按鈕（共同樣式） */
+.tool-btn {
+    flex: 1 1 calc(45% - 15px);
+    text-align: center;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 18px 0;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    text-decoration: none; /* 取消超連結底線 */ }
+
+/* 🔹內部功能按鈕 */
+.tool-btn.internal {
+    background-color: #dbefff;
+    color: #005fa3;
+    cursor: pointer;
+}
+.tool-btn.internal:hover {
+    background-color: #c7e0ff;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15); }
+
+/* 🔸外部連結按鈕 */
+.tool-btn.external {
+    background-color: #f0f9f0;
+    color: #006b3c;
+}
+.tool-btn.external:hover {
+    background-color: #d9f2d9;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 12px rgba(0,0,0,0.15); }
+
+/* 手機響應 */
+@media (max-width: 600px) {
+    .tool-btn {
+        flex: 1 1 100%;
+    }
+}
+</style>
+
+    <script>
+        // Accordion 折疊邏輯
+        const acc = document.getElementsByClassName("accordion");
+        for (let i = 0; i < acc.length; i++) {
+            acc[i].addEventListener("click", function() {
+                this.classList.toggle("active");
+                const panel = this.nextElementSibling;
+                panel.style.display = (panel.style.display === "block") ? "none" : "block";
+            });
+        }
+    </script>
+</body>
+</html>

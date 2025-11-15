@@ -1,0 +1,1133 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+    <title>股票走勢情境</title>
+
+    <!-- 引入 Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<title>Fixed Coupon Note (FCN)</title>
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"> <style>
+/* ===================== Body ===================== */ body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg,#f0f2f8,#e8f0ff);
+    padding: 40px;
+    color: #333;
+    margin: 0;
+}
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 60px;
+    background: linear-gradient(135deg,#0077cc,#005999);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+.back-btn:hover {
+    background: linear-gradient(135deg,#005999,#003366);
+}
+
+/* ===================== Container ===================== */ .container {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px 50px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    max-width: 950px;
+    margin: auto;
+    transition: box-shadow 0.3s, transform 0.3s; } .container:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+    /*transform: translateY(-3px);*/
+}
+h2 {
+    color: #0f4aa3;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 38px;
+}
+h3 {
+    color: #333;
+    margin-top: 50px;
+    font-size: 28px;
+    border-bottom: 2px solid #0077cc;
+    padding-bottom: 6px;
+}
+h4 { color: #333; margin-top: 25px; font-size: 20px; } p { line-height: 1.8; font-size: 16px; }
+
+/* ===================== Divider ===================== */ .divider { 
+    height: 1px; 
+    background: #e1e4e8; 
+    margin: 40px 0; 
+    border-radius: 1px;
+}
+
+/* ===================== Table ===================== */ table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+table th, table td {
+    padding: 12px 15px;
+    text-align: left;
+}
+table th {
+    background: linear-gradient(135deg,#c7ddff,#e3f0ff);
+    color: #003e6b;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+table td {
+    background-color: #fafafa;
+    border-bottom: 1px solid #e1e4e8;
+}
+table tr:hover td {
+    background-color: #eaf1ff;
+}
+
+/* ===================== Tooltip ===================== */ .tooltip {
+    position: relative;
+    cursor: help;
+    font-weight: 600;
+    color: #0077cc;
+}
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 160px;
+    background: linear-gradient(135deg, #ffffff, #e6f0ff);
+    color: #333;
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 12px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -80px;
+    opacity: 0;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    transition: opacity 0.3s;
+    font-size: 13px;
+}
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #e6f0ff transparent transparent transparent; } .tooltip:hover .tooltiptext { 
+    visibility: visible; 
+    opacity: 1;
+}
+
+/* ===================== Features ===================== */ .features {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 30px 0;
+}
+.feature-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1 1 28%;
+    padding: 25px 15px;
+    border-radius: 16px;
+    background: linear-gradient(145deg,#f9fafc,#e6f0ff);
+    transition: transform 0.3s, box-shadow 0.3s; } .features.faq .feature-item:hover {
+    transform: none; /* 取消 hover 移動，避免動畫干擾 */
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15); /* 保留陰影美感 */ } .feature-circle {
+    width: 70px;
+    height: 70px;
+    color: white;
+    font-weight: bold;
+    font-size: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1); } .feature-text { font-size: 16px; line-height: 1.5; }
+.feature1 { background: linear-gradient(135deg,#0077cc,#005999); }
+.feature2 { background: linear-gradient(135deg,#00a99d,#007a6e); }
+.feature3 { background: linear-gradient(135deg,#ff8c42,#d65a00); }
+
+/* ===================== Scenario Cards ===================== */ .scenario-cards { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 25px; } .scenario {
+    flex: 1 1 45%;
+    border-radius: 16px;
+    padding: 25px 20px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s; } .scenario:hover { 
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 28px rgba(0,0,0,0.15); } .scenario-title { font-weight: 600; font-size: 18px; margin-bottom: 12px; } .scenario-desc { margin-bottom: 8px; font-size: 15px; }
+
+/* Scenario gradient colors */
+.scenarioA { background: linear-gradient(135deg,#fffefa,#fff3cc); color: #403200; } .scenarioB { background: linear-gradient(135deg,#faf5ff,#e7dcff); color: #310278; } .scenarioC { background: linear-gradient(135deg,#f2fcf7,#deffef); color: #007352; } .scenarioD { background: linear-gradient(135deg,#fff2f2,#ffdede); color: #690000; }
+
+/* ===================== Images ===================== */ .scenario-image { text-align: center; margin-top: 30px; } .payoff-img { display: inline-block; max-width: 100%; height: auto; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.1); transition: transform 0.3s; } .payoff-img:hover { transform: scale(1.03); }
+
+/* FAQ modal 背景保持覆蓋整個畫面 */
+.faq-modal {
+    display: none;
+    position: fixed; /* 固定於 viewport */
+    z-index: 9999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6); /* 整個畫面反黑 */ }
+
+
+/* FAQ modal 內容可靠點擊位置出現 */
+    .faq-modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 600px;
+    margin: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: fixed;  /* 固定在 viewport 中央 */
+    text-align: left;
+    color: #333;
+    font-size: 16px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+
+
+
+.faq-modal .modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #333;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+/* ===================== FAQ Buttons ===================== */ .faq-features {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.faq-features .feature-item {
+    flex: 1 1 28%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 10px;
+    border-radius: 16px;
+    background: linear-gradient(145deg,#f9fafc,#e6f0ff);
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s, background 0.3s; } .faq-features .feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.18);
+    background: linear-gradient(135deg,#dce6ff,#aac6ff);
+}
+
+.faq-features .feature-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 12px;
+    transition: transform 0.3s, box-shadow 0.3s; } 
+
+    /* FAQ hover 不取消動畫，只控制陰影 */
+    .faq-features .feature-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.18); }
+
+
+.faq1-circle { background: linear-gradient(135deg,#0077cc,#005999);}  /* 藍色系 */
+.faq2-circle { background: linear-gradient(135deg,#00a99d,#007a6e);}  /* 青綠色系 */
+.faq3-circle { background: linear-gradient(135deg,#ff8c42,#d65a00);}  /* 橘色系 */
+.faq4-circle { background: linear-gradient(135deg,#8e44ad,#6c3483);}  /* 紫色系 */
+.faq5-circle { background: linear-gradient(135deg,#f39c12,#d68910);}  /* 金黃系 */
+.faq6-circle { background: linear-gradient(135deg,#2ecc71,#27ae60);}  /* 綠色系 */
+
+
+.feature-text {
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 500;
+    color: #333;
+}
+
+
+
+
+/* ===================== Modal ===================== */ .modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    padding-top: 60px;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.75);
+}
+.modal-content { margin: auto; display: block; max-width: 90%; border-radius: 12px; } .modal-close { position: absolute; top: 30px; right: 50px; color: #fff; font-size: 36px; font-weight: bold; cursor: pointer; }
+
+</style>
+</head>
+<body>
+
+<button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
+
+<div class="container">
+<h2>🔹 Fixed Coupon Note (FCN)</h2>
+<p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，透過將債券與選擇權結合，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。其特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破約定門檻，投資人可能損失部分或全部本金。</p>
+
+
+<h3>⚡ 產品特色</h3>
+<div class="features">
+<div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">將股票的不確定收益<br>轉變成固定收益</div></div>
+<div class="feature-item"><div class="feature-circle feature2">⚡</div><div class="feature-text">可提前自動出場<br>降低投資風險</div></div>
+<div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">對本金保護較個股深</div></div>
+</div>
+
+<div class="divider"></div>
+
+
+<h3>📘 範例商品條件</h3>
+<table>
+<tr><th>計價幣別</th><td>美元</td></tr>
+<tr><th>連結標的</th><td>NVDA、TSM</td></tr>
+<tr><th>天期</th><td>6個月</td></tr>
+<tr><th>履約價格 (Strike)</th><td>期初價格×75%</td></tr>
+<tr><th>下限價格 (Knock-in)</th><td>期初價格× 60%</td></tr>
+<tr><th>下限價格觀察頻率</th><td>每個工作日觀察一次 (Daily)</td></tr>
+<tr><th>提前出場價格 (KO)</th><td>期初價格 ×100%</td></tr>
+<tr><th>提前出場價格觀察頻率</th><td>每個工作日觀察一次 (Daily)</td></tr>
+<tr><th>KO是否記憶</th><td>Yes</td></tr>
+<tr><th>配息率</th><td>15% <span class="tooltip">(p.a.)<span class="tooltiptext">年化報酬率，固定配息計算方式</span></span></td></tr>
+</table>
+
+
+<div class="product-info">
+
+  <div class="info-line">
+    <strong>💵 固定配息：</strong> 持有期間不論股價漲跌，每月固定領 15% 年息。
+  </div>
+
+  <div class="info-line">
+    <strong>⚖️ 履約價 (Strike)：</strong> 最差情況需用此價格承接表現最差的連結股票。
+  </div>
+
+  <div class="info-line">
+    <strong>⬇️ 下限價 (Knock-In)：</strong> 觀察期間從沒有任一個連結股票觸及下限價，即使到期時股票價格低於履約價格，也不用實物履約。
+  </div>
+
+  <div class="info-line">
+    <strong>⏹️ 自動提前出場 (Knock-Out)：</strong> 所有連結標的均曾超過此價時，商品提前結束，投資人領回本金及應計利息。
+  </div>
+
+  <div class="info-line attention">
+    <strong>⚠️ 注意事項：</strong>
+    <ul>
+      <li>自動提前出場與期末評價日為獨立事件，若無發生 KO 事件，期末仍以表現最差連結標的計算。</li>
+      <li>若發生 KO 提前出場，依產品說明書中固定配息率計算應計利息。</li>
+      <li>期末評價日若連結標的表現不佳，將以履約價格接收表現最差標的股票。</li>
+    </ul>
+  </div>
+
+</div>
+
+<style>
+.product-info {
+  margin-top: 25px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+}
+
+.info-line {
+  border-left: 4px solid #0077cc;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+
+.attention {
+  border-left-color: #d35400;
+}
+
+.attention ul {
+  margin: 6px 0 0 20px;
+  padding: 0;
+  list-style-type: disc;
+}
+</style>
+
+
+
+
+<div class="divider"></div>
+
+
+
+<h3>📈 情境分析</h3>
+
+<!-- 圖表獨立區塊 -->
+
+
+<div class="scenario-cards">
+
+<div class="scenario scenarioA" onclick="showScenarioChart('A')">
+<div class="scenario-title">A情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格大於等於(>=)履約價格(Strike)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+
+<div class="scenario scenarioB" onclick="showScenarioChart('B')">
+<div class="scenario-title">B情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，但是從來沒有觸及下限價(KI)</div><div class="scenario-desc">投資人領回: 100%本金 +每一期配息</div></div>
+
+<div class="scenario scenarioC" onclick="showScenarioChart('C')">
+<div class="scenario-title">C情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，而且曾經觸及過下限價(KI)</div><div class="scenario-desc">投資人於到期日，以履約價格轉換成表現最差連結股票 + 應計配息</div></div>
+
+<div class="scenario scenarioD" onclick="showScenarioChart('D')">
+<div class="scenario-title">D情境</div><div class="scenario-desc">在保證領息期間過後，連結的所有股票均漲過提前出場價格(KO)</div><div class="scenario-desc">投資人領回: 100%本金 +應計配息</div></div>
+</div>
+
+
+<div style="position:relative; max-width:800px; margin:auto; margin-top:20px;">
+    <canvas id="scenarioChart" style="width:100%;"></canvas>
+    
+    <!-- 左側金流標籤 -->
+    <div style="position:absolute; bottom:-60px; left:-60px; width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#0077cc; font-size:19px;">金流</div>
+
+    <!-- 金流顯示容器 -->
+    <div id="cashFlowOverlay" style="position:absolute; bottom:-60px; left:0; width:100%; height:60px; display:flex; justify-content:space-between; pointer-events:none;">
+        <div style="flex:1; margin-left:2px; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">固定配息</div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">固定配息</div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">固定配息</div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">應計配息</div>
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;"> </div>
+        <div style="flex:3; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:12px;">本金+配息 / 股票+配息</div>
+    </div>
+</div>
+
+
+
+
+<div class="divider"></div>
+
+<h3>❓ 常見問題</h3>
+<div class="faq-features">
+    <div class="feature-item" onclick="openFAQ('faq1', event)">
+        <div class="feature-circle faq1-circle">Q1</div>
+        <div class="feature-text">
+            到期接股票怎麼計算？<br>
+            (連結股票和商品計價 <span style="font-weight:bold; color:#c00;">幣別相同</span>)
+        </div>
+    </div>
+    <div class="feature-item" onclick="openFAQ('faq2', event)">
+        <div class="feature-circle faq2-circle">Q2</div>
+        <div class="feature-text">
+            到期接股票怎麼計算？<br>
+            (連結股票和商品計價 <span style="font-weight:bold; color:#c00;">幣別不同</span>)
+        </div>
+    </div>
+    <div class="feature-item" onclick="openFAQ('faq3', event)">
+        <div class="feature-circle faq3-circle">Q3</div>
+        <div class="feature-text">結構型商品不可交易標的及幣別？</div>
+    </div>
+    <div class="feature-item" onclick="openFAQ('faq4', event)">
+        <div class="feature-circle faq4-circle">Q4</div>
+        <div class="feature-text">連結股票若發生合併、併購、國有化、破產或下市怎麼辦？</div>
+    </div>
+    <div class="feature-item" onclick="openFAQ('faq5', event)">
+        <div class="feature-circle faq5-circle">Q5</div>
+        <div class="feature-text">連結股票若發生股票分割（Stock Split）怎麼處理？</div>
+    </div>
+    <div class="feature-item" onclick="openFAQ('faq6', event)">
+        <div class="feature-circle faq6-circle">Q6</div>
+        <div class="feature-text">境外結構型商品的接股成本如何認列？</div>
+    </div>
+</div>
+
+
+<!-- FAQ Modal -->
+<div id="faqModal" class="faq-modal">
+    <div class="faq-modal-content" id="faqContent"></div>
+    <span class="modal-close" onclick="closeFAQ()">&times;</span>
+</div>
+
+<script>
+// FAQ內容可自行修改
+
+const faqData = {
+
+
+faq1: `
+<div style="
+    border-left:none;  /*6px solid #4A90E2;*/
+    padding:18px 20px;
+    margin:10px 0 20px 0;
+">
+
+    <div style="display:flex; align-items:center; margin-bottom:10px;">
+        <div style="
+            width:40px;height:40px;
+            border-radius:8px;
+            background:#4A90E2;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px;
+            margin-right:12px;
+        ">📘</div>
+
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
+            到期接股票怎麼計算的？
+        </h2>
+    </div>
+
+    <p style="font-size:15px; line-height:1.7;">
+        當 FCN 在到期出現 <b style="color:#c00;">C 情境（觸及 KI 且期末低於 Strike）</b>，就會進入
+        <b style="font-weight:700; color:#c00;">實物履約（接股票）</b>。
+    </p>
+
+    <h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 實物履約基本資訊</h3>
+
+    <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:15px;">
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">承接股票</th>
+            <td style="padding:10px; background:#fafafa;">NVDA</td>
+        </tr>
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">幣別</th>
+            <td style="padding:10px; background:#fafafa;">USD</td>
+        </tr>
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">匯率</th>
+            <td style="padding:10px; background:#fafafa;">1.00</td>
+        </tr>
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">履約股票價格</th>
+            <td style="padding:10px; background:#fafafa;">USD 150</td>
+        </tr>
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">最後評價日收盤價</th>
+            <td style="padding:10px; background:#fafafa;">USD 100</td>
+        </tr>
+    </table>
+
+    <p style="font-size:15px; line-height:1.7;">
+        假設 FCN 為美元計價，每單位名目本金為 <b>10,000 美元</b>。
+    </p>
+
+    <div style="
+        background:#fff3cd;
+        padding:15px;
+        border-radius:8px;
+        border:1px solid #ffe8a1;
+        margin:18px 0;
+    ">
+        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 每單位可承接股數</h3>
+        10,000 ÷ 150 = <b style="font-size:18px;">66.6667 股</b><br>
+        ✔ 最終可承接 <b style="color:#d35400;">66 股 NVDA</b>  
+        ✔ 小數部分須換成現金償付
+    </div>
+
+    <div style="
+        background:#e8f8f5;
+        padding:15px;
+        border-radius:8px;
+        border:1px solid #d1f2eb;
+        margin:18px 0;
+    ">
+        <h3 style="margin:0 0 10px 0; font-size:17px; color:#117a65;">📌 殘餘股數換成現金</h3>
+        0.6667 × 100 = <b style="color:#117a65; font-size:17px;">66.67 USD</b><br>
+        ✔ 以最後評價日收盤價計算  
+        ✔ 現金金額取小數兩位
+    </div>
+
+</div>
+`,
+
+
+
+faq2: `
+<div style="
+    border-left:none;
+    padding:18px 20px;
+    margin:10px 0 20px 0;
+">
+
+    <div style="display:flex; align-items:center; margin-bottom:10px;">
+        <div style="
+            width:40px;height:40px;
+            border-radius:8px;
+            background:#4A90E2;
+            color:white;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:22px;
+            margin-right:12px;
+        ">📘</div>
+
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
+            到期接股票怎麼計算的？
+        </h2>
+    </div>
+
+    <p style="font-size:15px; line-height:1.7;">
+        當 FCN 在到期出現 <b style="color:#c00;">C 情境（觸及 KI 且期末低於 Strike）</b>，就會進入
+        <b style="font-weight:700; color:#c00;">實物履約（接股票）</b>。
+    </p>
+
+<h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 實物履約基本資訊</h3>
+
+<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:15px;">
+    <tr>
+        <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">承接股票</th>
+        <td style="padding:10px; background:#fafafa;">NVDA</td>
+    </tr>
+    <tr>
+        <th style="padding:10px; background:#e9f2ff; text-align:left;">幣別</th>
+        <td style="padding:10px; background:#fafafa;"><span style="font-weight:bold; color:#c00;">JPY</span></td>
+    </tr>
+    <tr>
+        <th style="padding:10px; background:#e9f2ff; text-align:left;">匯率</th>
+        <td style="padding:10px; background:#fafafa;"><span style="font-weight:bold; color:#c00;">160</span></td>
+    </tr>
+    <tr>
+        <th style="padding:10px; background:#e9f2ff; text-align:left;">履約股票價格</th>
+        <td style="padding:10px; background:#fafafa;">USD 150</td>
+    </tr>
+    <tr>
+        <th style="padding:10px; background:#e9f2ff; text-align:left;">最後評價日收盤價</th>
+        <td style="padding:10px; background:#fafafa;">USD 100</td>
+    </tr>
+</table>
+
+    <p style="font-size:15px; line-height:1.7;">
+        假設 FCN 為日幣計價，每單位名目本金為 <b>1,000,000 日幣</b>。
+    </p>
+
+    <div style="
+        background:#fff3cd;
+        padding:15px;
+        border-radius:8px;
+        border:1px solid #ffe8a1;
+        margin:18px 0;
+    ">
+        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 每單位可承接股數</h3>
+        1,000,000 ÷ 匯率160(先換算成美元) ÷ 150 = <b style="font-size:18px;">41.6667 股</b><br>
+        ✔ 最終可承接 <b style="color:#d35400;">41 股 NVDA</b>  
+        ✔ 小數部分須換成現金償付
+    </div>
+
+    <div style="
+        background:#e8f8f5;
+        padding:15px;
+        border-radius:8px;
+        border:1px solid #d1f2eb;
+        margin:18px 0;
+    ">
+        <h3 style="margin:0 0 10px 0; font-size:17px; color:#117a65;">📌 殘餘股數換成現金</h3>
+        0.6667 × 100 = <b style="color:#117a65; font-size:17px;">66.67 USD</b><br>66.67 USD再以匯率160換回JPY 10,667，返還投資人<br>
+        ✔ 以最後評價日收盤價計算  
+        ✔ 日幣金額取至整數位
+    </div>
+
+</div>
+`,
+
+
+
+
+
+
+    faq3: `
+
+<div style="
+    margin:25px 0;
+    padding:20px 24px;
+    border-radius:10px;
+    border:1px solid #d3d7df;
+    background:#fafbfc;
+    box-shadow:0 2px 6px rgba(0,0,0,0.06);
+">
+
+    <!-- 標題 -->
+    <div style="
+        font-size:18px;
+        font-weight:700;
+        color:#003f7d;
+        margin-bottom:12px;
+        letter-spacing:0.5px;
+    ">
+        Q3｜結構型商品不可交易標的及幣別？
+    </div>
+
+    <!-- 內容 -->
+    <div style="font-size:15px; line-height:1.7; color:#333;">
+        
+        <div style="margin-bottom:12px;">
+            <span style="font-weight:600; color:#c00000;">1. 不得以新臺幣計價</span>
+        </div>
+
+        <div style="font-weight:600; margin-bottom:6px;">
+            2. 不得連結至下列標的：
+        </div>
+
+        <ul style="margin:0 0 14px 20px; padding:0; color:#444; font-size:15px;">
+            <li style="margin:6px 0;">新臺幣利率及匯率指標。</li>
+            <li style="margin:6px 0;">國內有價證券。</li>
+            <li style="margin:6px 0;">國內外機構編製之台股指數及其相關金融商品。</li>
+            <li style="margin:6px 0;">
+                未經本會核准或申報生效得募集及銷售之境外基金，  
+                及未依境外基金管理辦法規定於國內私募之境外基金。
+            </li>
+        </ul>
+
+        <div style="font-size:13px; color:#777; border-top:1px solid #e5e7eb; padding-top:10px;">
+            依《境外結構型商品管理規則》第 17 條規範
+        </div>
+    </div>
+</div>
+
+`,
+
+
+    faq4: `
+<div style="
+    border-left:5px solid #2979ff;
+    padding:18px 22px;
+    margin:25px 0;
+    background:#f9fbff;
+    border-radius:10px;
+">
+
+    <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a237e;">
+        Q4｜連結股票若發生合併、併購、國有化、破產或下市？
+    </h2>
+
+    <p style="font-size:15.5px; line-height:1.75; margin-top:14px;">
+        若連結股票發生重大事件（如合併、併購、國有化、無償債能力、破產或下市），
+        發行機構會依專業判斷，決定商品是否可以繼續運作。
+    </p>
+
+    <!-- 區塊 1 -->
+    <h3 style="margin:20px 0 8px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ① 是否繼續存續
+    </h3>
+    <p style="font-size:15px; line-height:1.7;">
+        發行機構會先評估事件對市場與商品的影響，決定此結構型商品是否仍能正常運作。
+    </p>
+
+    <!-- 區塊 2 -->
+    <h3 style="margin:20px 0 8px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ② 若商品可繼續存續，可能的調整方式
+    </h3>
+
+    <div style="margin-left:5px;">
+        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
+            • <b>更換繼任股票：</b>  
+              若原股票不再存在（如併入他公司），可改以「繼任股票」取代。  
+              如於事件後 10 個營業日內無法指定繼任股票，則採調整方式處理。
+        </p>
+
+        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
+            • <b>調整商品相關公式或條款：</b>  
+              為確保商品可繼續運作，可能調整：
+              到期金額算法、配息條件、交割方式，或因市場波動、預期股息、
+              借券成本、流動性變化等所需的計算要素。
+        </p>
+    </div>
+
+    <!-- 區塊 3 -->
+    <h3 style="margin:22px 0 8px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ③ 若商品無法繼續存續，則提前贖回
+    </h3>
+    <p style="font-size:15px; line-height:1.7;">
+        若發行機構判定商品已無法合理運作，可提前終止並贖回本商品。
+        發行機構將：
+    </p>
+
+    <div style="margin-left:5px;">
+        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
+            • 至少提前 <b>5 個營業日</b>通知投資人
+        </p>
+        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
+            • 給付每單位商品 <b>提前贖回款項</b> 之全額
+        </p>
+    </div>
+
+    <!-- 小結 -->
+    <div style="
+        margin-top:22px;
+        padding:14px 16px;
+        background:#eef5ff;
+        border-left:4px solid #2979ff;
+        border-radius:6px;
+        font-size:15px;
+        line-height:1.7;
+        color:#0d47a1;
+    ">
+        📌 <b>重點小結：</b>  
+        股票有重大變動 → 發行機構會決定是否改股票、改條款或提前贖回。  
+        目的都是為了反映市場變化，讓產品風險與價值保持合理。
+    </div>
+
+</div>
+
+
+
+`,
+    faq5: `
+
+<div style="
+    border-left:5px solid #2979ff;
+    padding:18px 22px;
+    margin:25px 0;
+    background:#f9fbff;
+    border-radius:10px;
+">
+
+    <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a237e;">
+        Q5｜連結股票發生股票分割（Stock Split）時怎麼調整？
+    </h2>
+
+    <p style="font-size:15.5px; line-height:1.7; margin-top:14px;">
+        股票發生分割時（如 1：20、1：10），商品會自動依比例調整相關價格門檻，
+        以確保投資人權益不受影響。
+    </p>
+
+    <!-- GOOG 案例 -->
+    <h3 style="margin:18px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ① 一般案例（如：GOOG 1：20 股票分割）
+    </h3>
+
+    <p style="font-size:15px; line-height:1.7; margin-top:4px;">
+        以 <b>GOOG（2022/7/18）1：20 分割</b> 為例：商品的
+        <b>期初價、KO、Strike、KI</b> 都會同步「<b>除以 20</b>」。
+        <br>📌 <b>分割後商品照常運作，不影響投資人權益。</b>
+    </p>
+
+    <!-- AMC 特殊案例 -->
+    <h3 style="margin:22px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ② 特殊情況（如 AMC 配發特別股）
+    </h3>
+
+    <p style="font-size:15px; line-height:1.7; margin-top:4px;">
+        AMC 在 2022/8/22 發放特別股「APE」。此類事件
+        <b>不屬於單純分割</b>，無法直接用比例計算。
+        <br><br>
+        👉 <b>發行機構會依專業判斷，調整合理因子</b>，確保商品正常運作。
+    </p>
+
+    <!-- 小結 -->
+    <div style="
+        margin-top:20px;
+        padding:12px 14px;
+        background:#eef5ff;
+        border-left:4px solid #2979ff;
+        border-radius:6px;
+        font-size:15px;
+        line-height:1.7;
+        color:#0d47a1;
+    ">
+        <b>📌 小結</b><br>
+        • 一般股票分割 → 價格依比例自動調整，權益不變。<br>
+        • 特殊事件（如 AMC） → 發行機構計算調整因子。
+    </div>
+
+</div>
+
+
+
+`,
+
+
+    faq6: `
+
+<div style="
+    border-left:5px solid #2979ff;
+    padding:18px 22px;
+    margin:25px 0;
+    background:#f9fbff;
+    border-radius:10px;
+">
+
+    <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a237e;">
+        Q6｜境外結構型商品的接股成本如何認列？
+    </h2>
+
+    <p style="font-size:15.5px; line-height:1.7; margin-top:14px;">
+        若境外結構型商品到期需接股，股票成本與損益認列方式與一般投資不同，
+        以下為正確的處理方式。
+    </p>
+
+    <!-- 股票成本認列 -->
+    <h3 style="margin:18px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ① 股票成本價格怎麼算？
+    </h3>
+
+    <p style="font-size:15px; line-height:1.7;">
+        雖然投資人是以<b>履約價（Strike）</b>取得股票，但認列基礎上：
+        <br><b>✔ 股票成本 = 最後評價日的收盤價（Fair Market Value）</b><br>履約價和最後評價日的收盤價之間的資本損失，將直接於商品結束時認列
+        <br>（不是 Strike 價格）
+    </p>
+
+    <!-- 資本損失 -->
+    <h3 style="margin:20px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ② 商品損失如何認列？
+    </h3>
+
+    <p style="font-size:15px; line-height:1.7;">
+        若履約價高於最後收盤價，產生的差額損失會被歸類為：
+        <br><b>✔ 境外結構型商品的資本利得損失 → 76-財產交易所得</b>
+        <br>此為海外所得的「財產交易」項目。
+    </p>
+
+    <!-- 不可互抵 -->
+    <h3 style="margin:20px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
+        ➤ ③ FCN 的利息能不能與損失互抵？
+    </h3>
+
+    <p style="font-size:15px; line-height:1.7;">
+        <b>不能。</b><br>
+        FCN 配息屬於<b>海外利息所得</b>，而上述損失屬於<b>財產交易所得</b>，
+        兩者分屬不同類別，<b>稅務上不可互抵。</b>
+    </p>
+
+    <!-- 小結 -->
+    <div style="
+        margin-top:22px;
+        padding:14px 16px;
+        background:#eef5ff;
+        border-left:4px solid #2979ff;
+        border-radius:6px;
+        font-size:15px;
+        line-height:1.7;
+        color:#0d47a1;
+    ">
+        <b>📌 重點小結：</b><br>
+        • 股票成本 = 最後評價日的收盤價。<br>
+        • 商品損失屬「76-財產交易所得」。<br>
+        • FCN 利息屬「海外利息所得」，不可與損失互抵。
+    </div>
+
+</div>
+
+
+
+`,
+};
+
+function openFAQ(id, event) {
+    event.stopPropagation();
+    const modal = document.getElementById('faqModal');
+    const content = document.getElementById('faqContent');
+    content.innerHTML = faqData[id];
+    modal.style.display = 'block';
+
+    // 鎖住背景滾動
+    document.body.style.overflow = 'hidden'; }
+
+function closeFAQ() {
+    document.getElementById('faqModal').style.display = 'none';
+    document.body.style.overflow = 'auto'; }
+
+
+// 點擊 modal 外層關閉
+document.getElementById('faqModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        this.style.display = 'none';
+    }
+});
+
+
+// 點擊空白區域關閉 modal
+window.addEventListener('click', function(event){
+    const modal = document.getElementById('faqModal');
+    if(event.target === modal) modal.style.display = 'none'; });
+
+
+
+</script>
+
+
+<!-- Modal -->
+<div id="imgModal" class="modal">
+<span class="modal-close" onclick="closeModal()">&times;</span>
+<img class="modal-content" id="modalImg"> </div>
+
+<script>
+function openModal(src){
+    document.getElementById('imgModal').style.display="block";
+    document.getElementById('modalImg').src=src;
+}
+function closeModal(){
+    document.getElementById('imgModal').style.display="none";
+}
+
+// 點擊 modal 外層關閉
+document.getElementById('faqModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeFAQ(); // 呼叫 closeFAQ() 解鎖滾動
+    }
+});
+
+
+
+</script>
+
+
+<script>
+
+// -----------------------------
+// 參數設定
+// -----------------------------
+const totalDays = 150; // 六個月 150 天
+
+const strikeLine = 75;
+const kiLine = 60;
+const koLine = 100;
+
+// -----------------------------
+// 生成資料
+// -----------------------------
+const dataA = [100, 80, 55, 68, 55, 80];
+const dataB = [100, 75, 65, 72, 80, 65];
+const dataC = [100, 80, 85, 70, 50, 65];
+const dataD = [100, 95, 85, 105, null, null];
+
+
+
+
+// -----------------------------
+// Chart.js 初始化
+// -----------------------------
+const ctx = document.getElementById('scenarioChart').getContext('2d');
+let scenarioChart = null;
+
+function showScenarioChart(type){
+    if(scenarioChart) scenarioChart.destroy();
+    const months = ['1月','2月','3月','4月','5月','6月'];
+    let selectedData;
+    let cashFlowData;
+
+    switch(type){
+        case 'A': 
+            selectedData = dataA; 
+            cashFlowData = ['固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            break;
+        case 'B': 
+            selectedData = dataB; 
+            cashFlowData = ['固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            break;
+        case 'C': 
+            selectedData = dataC; 
+            cashFlowData = ['固定配息','固定配息','固定配息','固定配息','固定配息','股票+配息']; 
+            break;
+        case 'D': 
+            selectedData = dataD; 
+            cashFlowData = ['固定配息','固定配息','固定配息','應計配息']; 
+            break;
+        default: return;
+    }
+
+    const scenarioLabelPlugin = {
+        id: 'scenarioLabel',
+        afterDraw: (chart) => {
+            const ctx = chart.ctx;
+            ctx.save();
+            ctx.font = 'bold 60px Arial';
+            ctx.fillStyle = 'rgba(0, 119, 204, 0.2)';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            const x = chart.chartArea.right - 10; 
+            const y = (chart.chartArea.top + chart.chartArea.bottom)/2;
+            ctx.fillText(type + ' 情境', x, y);
+            ctx.restore();
+        }
+    };
+
+    scenarioChart = new Chart(ctx, {
+        type:'line',
+        data:{
+            labels: months,
+            datasets:[
+                { label: '股價', data: selectedData, borderColor:'#0077cc', borderWidth:5, fill:false, tension:0.5 },
+                { label: '100% KO', data:Array(6).fill(100), borderColor:'#ff0000', borderWidth:2, borderDash:[10,5], fill:false },
+                { label: '75% Strike', data:Array(6).fill(75), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false },
+                { label: '60% KI', data:Array(6).fill(60), borderColor:'#ff8800', borderWidth:2, borderDash:[10,5], fill:false }
+            ]
+        },
+        options:{
+            responsive:true,
+            scales:{ y:{ min:40,max:140, title:{ display:true, text:'股價', font:{size:20} } }, x:{ ticks:{ font:{ size:15 } } } },
+            plugins:{ legend:{ labels:{ font:{ size:18 } } }, scenarioLabel:{ label:type+' 情境' } }
+        },
+        plugins:[scenarioLabelPlugin]
+    });
+
+    // -------------------------
+    // 精準對齊金流
+    // -------------------------
+    const cashFlowOverlay = document.getElementById('cashFlowOverlay');
+    cashFlowOverlay.innerHTML = ''; // 清空
+
+    const xScale = scenarioChart.scales.x;
+    cashFlowData.forEach((cf, i) => {
+        const div = document.createElement('div');
+        div.style.position = 'absolute';
+        div.style.bottom = '0';
+        div.style.left = (xScale.getPixelForTick(i) - 40/2) + 'px'; // 偏移半寬
+        div.style.width = '80px';
+        div.style.height = '40px';
+        div.style.backgroundColor = '#f9fafc';
+        div.style.border = '1px solid #d1d5db';
+        div.style.borderRadius = '8px';
+        div.style.textAlign = 'center';
+        div.style.lineHeight = '40px';
+        div.style.fontSize = '14px';
+        div.style.color = '#333';
+        div.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+        if (cf.includes("股票") || cf.includes("應計配息")) {
+    div.innerHTML = `<span style="color:red; font-weight:700;">${cf}</span>`;
+} else {
+    div.innerHTML = cf;
+}
+        cashFlowOverlay.appendChild(div);
+    });
+}
+
+
+
+
+// -----------------------------
+// 初始顯示 A 情境
+// -----------------------------
+showScenarioChart('A');
+</script>
+
+
+
+</body>
+</html>
