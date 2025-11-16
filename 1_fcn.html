@@ -302,7 +302,7 @@ table tr:hover td {
 
 <div class="container">
 <h2>🔹 Fixed Coupon Note (FCN)</h2>
-<p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，透過將債券與選擇權結合，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。其特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破約定門檻，投資人可能損失部分或全部本金。</p>
+<p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破履約價格，投資人可能損失部分或全部本金。</p>
 
 
 <h3>⚡ 產品特色</h3>
@@ -697,85 +697,56 @@ faq2: `
 
     faq4: `
 <div style="
-    border-left:5px solid #2979ff;
-    padding:18px 22px;
-    margin:25px 0;
-    background:#f9fbff;
-    border-radius:10px;
+    border-left:none;
+    padding:18px 20px;
+    margin:10px 0 20px 0;
 ">
 
-    <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a237e;">
-        Q4｜連結股票若發生合併、併購、國有化、破產或下市？
-    </h2>
-
-    <p style="font-size:15.5px; line-height:1.75; margin-top:14px;">
-        若連結股票發生重大事件（如合併、併購、國有化、無償債能力、破產或下市），
-        發行機構會依專業判斷，決定商品是否可以繼續運作。
-    </p>
-
-    <!-- 區塊 1 -->
-    <h3 style="margin:20px 0 8px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ① 是否繼續存續
-    </h3>
-    <p style="font-size:15px; line-height:1.7;">
-        發行機構會先評估事件對市場與商品的影響，決定此結構型商品是否仍能正常運作。
-    </p>
-
-    <!-- 區塊 2 -->
-    <h3 style="margin:20px 0 8px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ② 若商品可繼續存續，可能的調整方式
-    </h3>
-
-    <div style="margin-left:5px;">
-        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
-            • <b>更換繼任股票：</b>  
-              若原股票不再存在（如併入他公司），可改以「繼任股票」取代。  
-              如於事件後 10 個營業日內無法指定繼任股票，則採調整方式處理。
-        </p>
-
-        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
-            • <b>調整商品相關公式或條款：</b>  
-              為確保商品可繼續運作，可能調整：
-              到期金額算法、配息條件、交割方式，或因市場波動、預期股息、
-              借券成本、流動性變化等所需的計算要素。
-        </p>
+    <div style="display:flex; align-items:center; margin-bottom:10px;">
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
+            Q4｜連結股票若發生合併、併購、國有化、破產或下市？
+        </h2>
     </div>
 
-    <!-- 區塊 3 -->
-    <h3 style="margin:22px 0 8px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ③ 若商品無法繼續存續，則提前贖回
-    </h3>
     <p style="font-size:15px; line-height:1.7;">
-        若發行機構判定商品已無法合理運作，可提前終止並贖回本商品。
-        發行機構將：
+        若連結股票發生重大事件（如合併、併購、國有化、破產或下市），發行機構會依專業判斷，
+        決定商品是否能繼續存續，或是否需調整條款、提前贖回。
     </p>
 
-    <div style="margin-left:5px;">
-        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
-            • 至少提前 <b>5 個營業日</b>通知投資人
-        </p>
-        <p style="margin:10px 0; font-size:15px; line-height:1.7;">
-            • 給付每單位商品 <b>提前贖回款項</b> 之全額
-        </p>
-    </div>
+    <h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 可能的處理方式</h3>
 
-    <!-- 小結 -->
+    <p style="font-size:15px; line-height:1.7;">
+        <b>① 商品是否能繼續存續</b><br>
+        發行機構會先評估事件影響，決定商品是否能維持正常運作。
+    </p>
+
+    <p style="font-size:15px; line-height:1.7;">
+        <b>② 若能繼續存續 → 可能採取的調整方式：</b><br>
+        • 更換「繼任股票」以取代原股票（若於事件後 10 個營業日內無法指定，則採條款調整方式）<br>
+        • 調整商品相關要素，例如：到期金額公式、交割方式、利息計算、預期股息、借券成本、波動度或流動性等因素
+    </p>
+
+    <p style="font-size:15px; line-height:1.7;">
+        <b>③ 若商品無法繼續存續 → 提前贖回</b><br>
+        • 會至少提前 5 個營業日通知投資人<br>
+        • 給付商品的「提前了結款項」全額
+    </p>
+
     <div style="
-        margin-top:22px;
-        padding:14px 16px;
-        background:#eef5ff;
-        border-left:4px solid #2979ff;
-        border-radius:6px;
+        margin-top:20px;
+        padding:12px 15px;
+        background:#f3f8ff;
+        border-radius:8px;
         font-size:15px;
         line-height:1.7;
         color:#0d47a1;
     ">
-        📌 <b>重點小結：</b>  
-        股票有重大變動 → 發行機構會決定是否改股票、改條款或提前贖回。  
-        目的都是為了反映市場變化，讓產品風險與價值保持合理。
+        <b>📌 重點小結：</b><br>
+        股票若發生重大變動 → 可能改股票、改條款或提前贖回，目的在確保商品價值合理與市場實際狀況一致。
     </div>
 
 </div>
+
 
 
 
@@ -783,63 +754,60 @@ faq2: `
     faq5: `
 
 <div style="
-    border-left:5px solid #2979ff;
-    padding:18px 22px;
-    margin:25px 0;
-    background:#f9fbff;
-    border-radius:10px;
+    border-left:none;
+    padding:18px 20px;
+    margin:10px 0 20px 0;
 ">
 
-    <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a237e;">
-        Q5｜連結股票發生股票分割（Stock Split）時怎麼調整？
-    </h2>
+    <div style="display:flex; align-items:center; margin-bottom:10px;">
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
+            Q5｜連結股票發生股票分割（Stock Split）時怎麼調整？
+        </h2>
+    </div>
 
-    <p style="font-size:15.5px; line-height:1.7; margin-top:14px;">
-        股票發生分割時（如 1：20、1：10），商品會自動依比例調整相關價格門檻，
-        以確保投資人權益不受影響。
+    <p style="font-size:15px; line-height:1.7;">
+        股票分割時，結構型商品的價格門檻會依相同比例自動調整，
+        以反映股票面額變化，不影響投資人權益。
     </p>
 
-    <!-- GOOG 案例 -->
-    <h3 style="margin:18px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ① 一般案例（如：GOOG 1：20 股票分割）
+    <!-- 一般案例 -->
+    <h3 style="margin:18px 0 6px 0; font-size:18px; color:#4A90E2;">
+        📌 一般案例：如 GOOG 1：20 股票分割
     </h3>
 
-    <p style="font-size:15px; line-height:1.7; margin-top:4px;">
-        以 <b>GOOG（2022/7/18）1：20 分割</b> 為例：商品的
-        <b>期初價、KO、Strike、KI</b> 都會同步「<b>除以 20</b>」。
-        <br>📌 <b>分割後商品照常運作，不影響投資人權益。</b>
+    <p style="font-size:15px; line-height:1.7;">
+        以 <b>GOOG（2022/7/18）1：20</b> 股票分割為例：  
+        商品的 <b>期初價、KO、Strike、KI</b> 都會「全部除以 20」。  
+        <br><b style="color:#0d47a1;">分割後商品照常運作，不會影響投資人權益。</b>
     </p>
 
-    <!-- AMC 特殊案例 -->
-    <h3 style="margin:22px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ② 特殊情況（如 AMC 配發特別股）
+    <!-- 特殊案例 -->
+    <h3 style="margin:22px 0 6px 0; font-size:18px; color:#4A90E2;">
+        📌 特殊情況：如 AMC 配發特別股
     </h3>
 
-    <p style="font-size:15px; line-height:1.7; margin-top:4px;">
-        AMC 在 2022/8/22 發放特別股「APE」。此類事件
-        <b>不屬於單純分割</b>，無法直接用比例計算。
+    <p style="font-size:15px; line-height:1.7;">
+        AMC 在 2022/8/22 發放特別股「APE」，此事件不屬於單純分割，
+        因此無法依比例自動調整。
         <br><br>
-        👉 <b>發行機構會依專業判斷，調整合理因子</b>，確保商品正常運作。
+        <b>由發行機構依專業判斷計算調整因子</b>，以維持商品運作的合理性。
     </p>
 
-    <!-- 小結 -->
     <div style="
         margin-top:20px;
-        padding:12px 14px;
-        background:#eef5ff;
-        border-left:4px solid #2979ff;
-        border-radius:6px;
+        padding:12px 15px;
+        background:#f3f8ff;
+        border-radius:8px;
         font-size:15px;
         line-height:1.7;
         color:#0d47a1;
     ">
-        <b>📌 小結</b><br>
-        • 一般股票分割 → 價格依比例自動調整，權益不變。<br>
-        • 特殊事件（如 AMC） → 發行機構計算調整因子。
+        <b>📌 小結：</b><br>
+        • 一般分割 → 價格自動依比例調整，權益不變。<br>
+        • 特殊事件（如 AMC）→ 需由發行機構計算調整因子。
     </div>
 
 </div>
-
 
 
 `,
@@ -848,74 +816,69 @@ faq2: `
     faq6: `
 
 <div style="
-    border-left:5px solid #2979ff;
-    padding:18px 22px;
-    margin:25px 0;
-    background:#f9fbff;
-    border-radius:10px;
+    border-left:none;
+    padding:18px 20px;
+    margin:10px 0 20px 0;
 ">
 
-    <h2 style="margin:0; font-size:22px; font-weight:700; color:#1a237e;">
-        Q6｜境外結構型商品的接股成本如何認列？
-    </h2>
+    <div style="display:flex; align-items:center; margin-bottom:10px;">
+        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
+            Q6｜境外結構型商品的接股成本如何認列？
+        </h2>
+    </div>
 
-    <p style="font-size:15.5px; line-height:1.7; margin-top:14px;">
-        若境外結構型商品到期需接股，股票成本與損益認列方式與一般投資不同，
-        以下為正確的處理方式。
+    <p style="font-size:15px; line-height:1.7;">
+        境外結構型商品到期若需接股，股票成本與損益認列方式與一般股票投資不同，
+        必須依正確的會計與稅務分類處理。
     </p>
 
-    <!-- 股票成本認列 -->
-    <h3 style="margin:18px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ① 股票成本價格怎麼算？
+    <!-- 股票成本 -->
+    <h3 style="margin:18px 0 6px 0; font-size:18px; color:#4A90E2;">
+        📌 ① 股票成本怎麼認列？
     </h3>
 
     <p style="font-size:15px; line-height:1.7;">
-        雖然投資人是以<b>履約價（Strike）</b>取得股票，但認列基礎上：
-        <br><b>✔ 股票成本 = 最後評價日的收盤價（Fair Market Value）</b><br>履約價和最後評價日的收盤價之間的資本損失，將直接於商品結束時認列
-        <br>（不是 Strike 價格）
+        雖然投資人是以 <b>履約價（Strike）</b> 取得股票，但成本認列方式為：
+        <br><b>✔ 股票成本 = 最後評價日的收盤價（Fair Market Value）</b><br>
+        因此 Strike 與收盤價的差額會直接反映為商品損益。
     </p>
 
-    <!-- 資本損失 -->
-    <h3 style="margin:20px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ② 商品損失如何認列？
+    <!-- 損失 -->
+    <h3 style="margin:20px 0 6px 0; font-size:18px; color:#4A90E2;">
+        📌 ② 商品損失如何認列？
     </h3>
 
     <p style="font-size:15px; line-height:1.7;">
-        若履約價高於最後收盤價，產生的差額損失會被歸類為：
-        <br><b>✔ 境外結構型商品的資本利得損失 → 76-財產交易所得</b>
-        <br>此為海外所得的「財產交易」項目。
+        若 Strike 高於最後收盤價，產生的損失會列為：
+        <br><b>✔ 境外結構型商品的資本利得損失 →「76-財產交易所得」</b>
     </p>
 
-    <!-- 不可互抵 -->
-    <h3 style="margin:20px 0 6px 0; font-size:17px; font-weight:700; color:#0d47a1;">
-        ➤ ③ FCN 的利息能不能與損失互抵？
+    <!-- 互抵 -->
+    <h3 style="margin:20px 0 6px 0; font-size:18px; color:#4A90E2;">
+        📌 ③ FCN 的利息能不能與損失互抵？
     </h3>
 
     <p style="font-size:15px; line-height:1.7;">
-        <b>不能。</b><br>
-        FCN 配息屬於<b>海外利息所得</b>，而上述損失屬於<b>財產交易所得</b>，
-        兩者分屬不同類別，<b>稅務上不可互抵。</b>
+        <b>不能。</b>  
+        FCN 利息屬於「海外利息所得」，與上述「財產交易所得」屬於不同類別，稅務上不得互相抵減。
     </p>
 
-    <!-- 小結 -->
     <div style="
-        margin-top:22px;
-        padding:14px 16px;
-        background:#eef5ff;
-        border-left:4px solid #2979ff;
-        border-radius:6px;
+        margin-top:20px;
+        padding:12px 15px;
+        background:#f3f8ff;
+        border-radius:8px;
         font-size:15px;
         line-height:1.7;
         color:#0d47a1;
     ">
-        <b>📌 重點小結：</b><br>
-        • 股票成本 = 最後評價日的收盤價。<br>
-        • 商品損失屬「76-財產交易所得」。<br>
-        • FCN 利息屬「海外利息所得」，不可與損失互抵。
+        <b>📌 小結：</b><br>
+        • 股票成本以「最後評價日收盤價」認列。<br>
+        • 損失屬於海外財產交易損失。<br>
+        • FCN 利息屬「海外利息所得」，不可互抵。
     </div>
 
 </div>
-
 
 
 `,
