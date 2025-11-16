@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>📊 歷史波動率計算器</title>
+<title>📊 2歷史波動率計算器</title>
 <style>
 body {
   font-family: "Segoe UI", sans-serif;
@@ -88,9 +88,11 @@ button:hover {
 <div style="margin-bottom:15px;">
   <p><b>使用說明：</b></p>
   <small>
-    1️⃣ 股票代號以 Yahoo Finance 為主（日股加 .T，美股直接輸入代號）。<br>
+  1️⃣ 股票代號以 Yahoo Finance 為主（日股加 .T，美股直接輸入代號）。<br>
     2️⃣ 點「開始計算」後，會依序計算各股票過去 N 個月波動率。<br>
-    3️⃣ 資料來源：Yahoo Finance。
+  3️⃣ 如果抓取失敗可能是短時間抓太多資料，可以再抓一次試試看<br>
+    4️⃣ 資料來源：Yahoo Finance。
+
   </small>
 </div>
 
@@ -113,7 +115,7 @@ button:hover {
 <input type="number" id="months" min="1" max="12" value="6">
 
 <button onclick="calculateMultipleVol()">開始計算</button>
-<button id="exportBtn" onclick="exportToExcel()">匯出查詢紀錄</button>
+<button id="exportBtn" onclick="exportToExcel()">匯出Excel</button>
 
 <div class="result" id="volResult"></div>
 
@@ -127,14 +129,36 @@ button:hover {
 <script>
 let historyRecords = []; // 每一筆都是 {時間, 股票, 月份, 波動度}
 
+// 增加重試功能
+async function fetchWithRetry(url, retries = 2, delay = 500) {
+  for (let i = 0; i <= retries; i++) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP錯誤 ${res.status}`);
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      if (i === retries) throw err;
+      await new Promise(r => setTimeout(r, delay));
+    }
+  }
+}
+
+// 計算單檔股票波動率
 async function calculateVol(ticker, months) {
   const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?range=${months}mo&interval=1d`;
   const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(yahooUrl)}`;
   try {
-    const response = await fetch(proxyUrl);
-    const data = await response.json();
-    const closes = data.chart.result[0].indicators.quote[0].close.filter(v => !isNaN(v));
-    if (closes.length < 2) return null;
+    const data = await fetchWithRetry(proxyUrl, 2, 500);
+
+    if (!data.chart || !data.chart.result || !data.chart.result[0]) {
+      return { error: "股票代號不存在或無資料" };
+    }
+
+    const closes = data.chart.result[0].indicators.quote[0].close
+      .filter(v => typeof v === "number" && !isNaN(v));
+    if (closes.length < 2) return { error: "資料不足，無法計算" };
+
     const logReturns = [];
     for (let i = 1; i < closes.length; i++) {
       logReturns.push(Math.log(closes[i] / closes[i - 1]));
@@ -142,12 +166,15 @@ async function calculateVol(ticker, months) {
     const mean = logReturns.reduce((a,b)=>a+b,0)/logReturns.length;
     const variance = logReturns.reduce((a,b)=>a+Math.pow(b-mean,2),0)/(logReturns.length-1);
     const vol = Math.sqrt(variance) * Math.sqrt(252);
-    return vol;
-  } catch {
-    return null;
+
+    return { vol };
+  } catch (err) {
+    console.error("抓取失敗:", ticker, err);
+    return { error: "網路錯誤或無法取得資料" };
   }
 }
 
+// 逐檔計算多檔股票波動率
 async function calculateMultipleVol() {
   const tickers = [
     document.getElementById("ticker1").value.trim().toUpperCase(),
@@ -160,65 +187,48 @@ async function calculateMultipleVol() {
   const resultDiv = document.getElementById("volResult");
   const historyLog = document.getElementById("historyLog");
 
-  // 驗證月份
   if (!/^\d+$/.test(monthsInput) || months < 1 || months > 12) {
     alert("❌ 月份必須是 1～12 的整數！");
     return;
   }
-
   if (tickers.length === 0) {
     resultDiv.innerHTML = "⚠️ 請至少輸入一檔股票代號。";
     return;
   }
 
   resultDiv.innerHTML = "⏳ 正在計算中，請稍候...";
-  let output = "";
   const now = new Date().toLocaleString();
+  let output = "";
 
   for (let ticker of tickers) {
-    const vol = await calculateVol(ticker, months);
-    if (vol !== null) {
-      const text = `${ticker}: ${months} 個月波動率 = ${(vol*100).toFixed(2)}%`;
+    const res = await calculateVol(ticker, months);
+    if (res.vol) {
+      const text = `${ticker}: ${months} 個月波動率 = ${(res.vol*100).toFixed(2)}%`;
       output += `✅ ${text}<br>`;
-      // 記錄一行
-      historyRecords.unshift({
-        時間: now,
-        股票代號: ticker,
-        月份: months,
-        波動度: (vol*100).toFixed(2) + "%"
-      });
+      historyRecords.unshift({ 時間: now, 股票代號: ticker, 月份: months, 波動度: (res.vol*100).toFixed(2) + "%" });
     } else {
-      output += `❌ ${ticker}: 無法取得資料<br>`;
-      historyRecords.unshift({
-        時間: now,
-        股票代號: ticker,
-        月份: months,
-        波動度: "查詢失敗"
-      });
+      output += `❌ ${ticker}: ${res.error}<br>`;
+      historyRecords.unshift({ 時間: now, 股票代號: ticker, 月份: months, 波動度: res.error });
     }
   }
 
   resultDiv.innerHTML = output;
-
-  // 更新歷史紀錄顯示
-  const historyHTML = historyRecords.map(r => {
-    return `[${r.時間}] ${r.股票代號} (${r.月份}個月) 波動率: ${r.波動度}<hr>`;
-  }).join("");
+  const historyHTML = historyRecords.map(r => `[${r.時間}] ${r.股票代號} (${r.月份}個月) 波動率: ${r.波動度}<hr>`).join("");
   historyLog.innerHTML = historyHTML || "目前沒有查詢紀錄";
 }
 
-// 匯出 Excel
+// 匯出 Excel 保持不變
 function exportToExcel() {
   if (historyRecords.length === 0) {
     alert("目前沒有查詢紀錄可匯出。");
     return;
   }
-  // 每次查詢拆成多行已經符合 Excel 需求
   const ws = XLSX.utils.json_to_sheet(historyRecords, {header: ["時間","股票代號","月份","波動度"]});
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Volatility History");
   XLSX.writeFile(wb, "波動率查詢紀錄.xlsx");
 }
 </script>
+
 </body>
 </html>
