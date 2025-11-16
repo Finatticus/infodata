@@ -2,12 +2,12 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-    <title>Fixed Coupon Note (FCN)</title>
+    <title>Stepdown FCN</title>
 
     <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<title>Fixed Coupon Note (FCN)</title>
+<title>Stepdown FCN</title>
 <!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"> <style>
 /* ===================== Body ===================== */ body {
@@ -301,14 +301,14 @@ table tr:hover td {
 <button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
 
 <div class="container">
-<h2>🔹 Fixed Coupon Note (FCN)</h2>
-<p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破履約價格，投資人可能損失部分或全部本金。</p>
+<h2>🔹 Stepdown FCN</h2>
+<p>Stepdown FCN為一般FCN的延伸架構，提供同樣的固定收益機制，並設有逐期遞減的提前出場價格，每期最後一日觀察是否提前出場。適合預期市場震盪偏多、希望提高中後期出場機會、追求穩定配息且能承擔一定標的下跌風險的投資人。</p>
 
 
 <h3>🚩 產品特色</h3>
 <div class="features">
 <div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">將股票的不確定收益<br>轉變成固定收益</div></div>
-<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">可提前自動出場<br>降低投資風險</div></div>
+<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">每個期間遞減提前出場價格<br>提高商品中後期安全出場的機率</div></div>
 <div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">對本金保護較個股深</div></div>
 </div>
 
@@ -323,8 +323,8 @@ table tr:hover td {
 <tr><th>履約價格 (Strike)</th><td>期初價格 × 75%</td></tr>
 <tr><th>下限價格 (Knock-in)</th><td>期初價格 × 60%</td></tr>
 <tr><th>下限價格觀察頻率 (AKI)</th><td>每個工作日觀察一次 (Daily)</td></tr>
-<tr><th>提前出場價格 (KO)</th><td>期初價格 × 100%</td></tr>
-<tr><th>提前出場價格觀察頻率</th><td>每個工作日觀察一次 (Daily)</td></tr>
+<tr><th>提前出場價格 (KO)<br><span style="color:red;">逐期遞減（Stepdown）</span></th><td>期初價格 × 100% → 95% → 90% → 85% → 80% → 75%</td></tr>
+<tr><th>提前出場價格觀察頻率</th><td>每一期配息期間最後一天觀察 (Monthly)</td></tr>
 <tr><th>KO是否記憶</th><td>Yes</td></tr>
 <tr><th>配息率</th><td>15% <span class="tooltip">(p.a.)<span class="tooltiptext">年化報酬率，固定配息計算方式</span></span></td></tr>
 </table>
@@ -345,15 +345,15 @@ table tr:hover td {
   </div>
 
   <div class="info-line">
-    <strong>⏹️ 自動提前出場 (Knock-Out)：</strong> 所有連結標的均曾超過此價時，商品提前結束，投資人領回本金及應計利息。
+    <strong>⏹️ <span style="color:red;">逐期遞減式</span>自動提前出場 (Stepdown Knock-Out)：</strong> 每一期配息期間的最後一天觀察一次，若所有連結標的均<strong>曾經</strong>於觀察日高於當期的 Stepdown KO 價格，則商品提前出場，投資人領回本金及應計利息。
   </div>
 
   <div class="info-line attention">
     <strong>⚠️ 注意事項：</strong>
     <ul>
-      <li>自動提前出場與期末評價日為獨立事件，若無發生 KO 事件，期末仍以表現最差連結標的計算。</li>
-      <li>若發生 KO 提前出場，依產品說明書中固定配息率計算應計利息。</li>
-      <li>期末評價日若連結標的表現不佳，將以履約價格接收表現最差標的股票。</li>
+<li>KO 價格為逐期遞減（Stepdown），僅在各配息期間最後一天進行單次觀察。</li>
+<li>若發生 KO 提前出場，依產品說明書中固定配息率計算應計利息。</li>
+<li>自動提前出場與期末評價日為獨立事件，若未發生 KO 事件，則依期末股票收盤價格決定是否實物履約。</li>
     </ul>
   </div>
 
@@ -957,10 +957,10 @@ const koLine = 100;
 // -----------------------------
 // 生成資料
 // -----------------------------
-const dataA = [100, 80, 55, 68, 55, 80];
-const dataB = [100, 75, 65, 72, 80, 65];
+const dataA = [100, 80, 55, 68, 55, 78];
+const dataB = [100, 75, 65, 70, 76, 65];
 const dataC = [100, 80, 85, 70, 50, 65];
-const dataD = [100, 95, 85, 105, null, null];
+const dataD = [100, 90, 85, 93, null, null];
 
 
 
@@ -1019,7 +1019,17 @@ function showScenarioChart(type){
             labels: months,
             datasets:[
                 { label: '股價', data: selectedData, borderColor:'#0077cc', borderWidth:5, fill:false, tension:0.5 },
-                { label: '100% KO', data:Array(6).fill(100), borderColor:'#ff0000', borderWidth:2, borderDash:[10,5], fill:false },
+
+{
+    label: 'KO (Stepdown)',
+    data: [100, 95, 90, 85, 80, 75],
+    borderColor: 'red',
+    borderWidth: 2,
+    borderDash: [6, 6],
+    fill: false,
+    pointRadius: 0,
+    stepped: 'before'   }
+,
                 { label: '75% Strike', data:Array(6).fill(75), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false },
                 { label: '60% KI', data:Array(6).fill(60), borderColor:'#ff8800', borderWidth:2, borderDash:[10,5], fill:false }
             ]

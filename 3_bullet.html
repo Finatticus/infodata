@@ -2,12 +2,12 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-    <title>Fixed Coupon Note (FCN)</title>
+    <title>Bullet FCN</title>
 
     <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<title>Fixed Coupon Note (FCN)</title>
+<title>Bullet FCN</title>
 <!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"> <style>
 /* ===================== Body ===================== */ body {
@@ -301,14 +301,14 @@ table tr:hover td {
 <button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
 
 <div class="container">
-<h2>🔹 Fixed Coupon Note (FCN)</h2>
-<p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破履約價格，投資人可能損失部分或全部本金。</p>
+<h2>🔹 Bullet FCN</h2>
+<p>Bullet FCN是一種固定配息的結構型商品，商品利息只在第一個配息日配發，所以越早提前出場，換算的年化配息率越高，適合在多頭市場時選擇的架構。</p>
 
 
 <h3>🚩 產品特色</h3>
 <div class="features">
 <div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">將股票的不確定收益<br>轉變成固定收益</div></div>
-<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">可提前自動出場<br>降低投資風險</div></div>
+<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">商品越早提前出場<br>年化配息率越高</div></div>
 <div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">對本金保護較個股深</div></div>
 </div>
 
@@ -326,14 +326,14 @@ table tr:hover td {
 <tr><th>提前出場價格 (KO)</th><td>期初價格 × 100%</td></tr>
 <tr><th>提前出場價格觀察頻率</th><td>每個工作日觀察一次 (Daily)</td></tr>
 <tr><th>KO是否記憶</th><td>Yes</td></tr>
-<tr><th>配息率</th><td>15% <span class="tooltip">(p.a.)<span class="tooltiptext">年化報酬率，固定配息計算方式</span></span></td></tr>
+<tr><th>配息率</th><td>5% <span class="tooltip">(flat)<span class="tooltiptext">實質報酬率</span></span></td></tr>
 </table>
 
 
 <div class="product-info">
 
   <div class="info-line">
-    <strong>💵 固定配息：</strong> 持有期間不論股價漲跌，每月固定領 15% 年息。
+    <strong>💵 固定配息：</strong> 第一個配息日配發5%實質報酬
   </div>
 
   <div class="info-line">
@@ -352,7 +352,6 @@ table tr:hover td {
     <strong>⚠️ 注意事項：</strong>
     <ul>
       <li>自動提前出場與期末評價日為獨立事件，若無發生 KO 事件，期末仍以表現最差連結標的計算。</li>
-      <li>若發生 KO 提前出場，依產品說明書中固定配息率計算應計利息。</li>
       <li>期末評價日若連結標的表現不佳，將以履約價格接收表現最差標的股票。</li>
     </ul>
   </div>
@@ -400,16 +399,16 @@ table tr:hover td {
 <div class="scenario-cards">
 
 <div class="scenario scenarioA" onclick="showScenarioChart('A')">
-<div class="scenario-title">A情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格大於等於(>=)履約價格(Strike)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="scenario-title">A情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格大於等於(>=)履約價格(Strike)</div><div class="scenario-desc">投資人領回: 100%本金 + <span style="color:red;">首期實質配息</span></div></div>
 
 <div class="scenario scenarioB" onclick="showScenarioChart('B')">
-<div class="scenario-title">B情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，但是從來沒有觸及下限價(KI)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="scenario-title">B情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，但是從來沒有觸及下限價(KI)</div><div class="scenario-desc">投資人領回: 100%本金 + <span style="color:red;">首期實質配息</span></div></div>
 
 <div class="scenario scenarioC" onclick="showScenarioChart('C')">
-<div class="scenario-title">C情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，而且曾經觸及過下限價(KI)</div><div class="scenario-desc">投資人於到期日，以履約價格轉換成表現最差連結股票 + 應計配息</div></div>
+<div class="scenario-title">C情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，而且曾經觸及過下限價(KI)</div><div class="scenario-desc">投資人於到期日，以履約價格轉換成表現最差連結股票 + <span style="color:red;">首期實質配息</span></div></div>
 
 <div class="scenario scenarioD" onclick="showScenarioChart('D')">
-<div class="scenario-title">D情境</div><div class="scenario-desc">在保證領息期間過後，連結的所有股票均漲過提前出場價格(KO)</div><div class="scenario-desc">投資人領回: 100%本金 + 應計配息</div></div>
+<div class="scenario-title">D情境</div><div class="scenario-desc">在保證領息期間過後，連結的所有股票均漲過提前出場價格(KO)</div><div class="scenario-desc">投資人領回: 100%本金 + <span style="color:red;">首期實質配息</span></div></div>
 </div>
 
 
@@ -980,19 +979,19 @@ function showScenarioChart(type){
     switch(type){
         case 'A': 
             selectedData = dataA; 
-            cashFlowData = ['固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            cashFlowData = ['固定配息','','','','','本金+配息']; 
             break;
         case 'B': 
             selectedData = dataB; 
-            cashFlowData = ['固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            cashFlowData = ['固定配息','','','','','本金+配息']; 
             break;
         case 'C': 
             selectedData = dataC; 
-            cashFlowData = ['固定配息','固定配息','固定配息','固定配息','固定配息','股票+配息']; 
+            cashFlowData = ['固定配息','','','','','股票+配息']; 
             break;
         case 'D': 
             selectedData = dataD; 
-            cashFlowData = ['固定配息','固定配息','固定配息','應計配息']; 
+            cashFlowData = ['固定配息',]; 
             break;
         default: return;
     }
@@ -1039,28 +1038,32 @@ function showScenarioChart(type){
     cashFlowOverlay.innerHTML = ''; // 清空
 
     const xScale = scenarioChart.scales.x;
-    cashFlowData.forEach((cf, i) => {
-        const div = document.createElement('div');
-        div.style.position = 'absolute';
-        div.style.bottom = '0';
-        div.style.left = (xScale.getPixelForTick(i) - 40/2) + 'px'; // 偏移半寬
-        div.style.width = '80px';
-        div.style.height = '40px';
-        div.style.backgroundColor = '#f9fafc';
-        div.style.border = '1px solid #d1d5db';
-        div.style.borderRadius = '8px';
-        div.style.textAlign = 'center';
-        div.style.lineHeight = '40px';
-        div.style.fontSize = '14px';
-        div.style.color = '#333';
-        div.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
-        if (cf.includes("股票") || cf.includes("應計配息")) {
-    div.innerHTML = `<span style="color:red; font-weight:700;">${cf}</span>`;
-} else {
-    div.innerHTML = cf;
-}
-        cashFlowOverlay.appendChild(div);
-    });
+cashFlowData.forEach((cf, i) => {
+    if (cf === '') return;  // 空字串直接跳過，不生成 div
+
+    const div = document.createElement('div');
+    div.style.position = 'absolute';
+    div.style.bottom = '0';
+    div.style.left = (xScale.getPixelForTick(i) - 40/2) + 'px';
+    div.style.width = '80px';
+    div.style.height = '40px';
+    div.style.backgroundColor = '#f9fafc';
+    div.style.border = '1px solid #d1d5db';
+    div.style.borderRadius = '8px';
+    div.style.textAlign = 'center';
+    div.style.lineHeight = '40px';
+    div.style.fontSize = '14px';
+    div.style.color = '#333';
+    div.style.boxShadow = '0 2px 6px rgba(0,0,0,0.1)';
+
+    if (cf.includes("股票") || cf.includes("應計配息")) {
+        div.innerHTML = `<span style="color:red; font-weight:700;">${cf}</span>`;
+    } else {
+        div.innerHTML = cf;
+    }
+
+    cashFlowOverlay.appendChild(div);
+});
 }
 
 
