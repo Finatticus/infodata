@@ -2,12 +2,12 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-    <title>Stepdown FCN</title>
+    <title>BEN with Lookback</title>
 
     <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<title>Stepdown FCN</title>
+<title>Fixed Coupon Note (FCN)</title>
 <!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet"> <style>
 /* ===================== Body ===================== */ body {
@@ -17,7 +17,6 @@
     color: #333;
     margin: 0;
 }
-
 .section-wrapper {
     position: relative; 
 }
@@ -40,6 +39,7 @@
 .back-btn:hover {
     background: #e6f0ff;
 }
+
 
 /* ===================== Container ===================== */ .container {
     background: #fff;
@@ -308,17 +308,16 @@ table tr:hover td {
 <div class="section-wrapper">
 <button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
 
-
 <div class="container">
-<h2>🔹 Stepdown FCN</h2>
-<p>Stepdown FCN為一般FCN的延伸架構，提供同樣的固定收益機制，並設有逐期遞減的提前出場價格，每期最後一日觀察是否提前出場。適合預期市場震盪偏多、希望提高中後期出場機會、追求穩定配息且能承擔一定標的下跌風險的投資人。</p>
+<h2>🔹 BEN with Lookback</h2>
+<p>BEN with Lookback與一般BEN相同，以表現最差股票決定收益，但會採發行日起算N日的回顧期間最低價作為期初價格，能在無法掌握進場時機或市場較為波動時取得相對有利的進場點，適合希望提高進場彈性的投資人。</p>
 
 
 <h3>🚩 產品特色</h3>
 <div class="features">
-<div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">將股票的不確定收益<br>轉變成固定收益</div></div>
-<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">每個期間遞減提前出場價格<br>提高商品中後期安全出場的機率</div></div>
-<div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">對本金保護較個股深</div></div>
+<div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">達履約價即可獲得紅利率回報</div></div>
+<div class="feature-item"><div class="feature-circle feature2">☝️</div><div class="feature-text">對進場時間點遲疑，想進場到最低點的選擇</div></div>
+<div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">以回顧(Lookback)期間最低收盤價作為期初價格</div></div>
 </div>
 
 <div class="divider"></div>
@@ -329,40 +328,38 @@ table tr:hover td {
 <tr><th>計價幣別</th><td>美元</td></tr>
 <tr><th>連結標的</th><td>NVDA、TSM</td></tr>
 <tr><th>天期</th><td>6個月</td></tr>
-<tr><th>履約價格 (Strike)</th><td>期初價格 × 75%</td></tr>
-<tr><th>下限價格 (Knock-in)</th><td>期初價格 × 60%</td></tr>
+<tr><th><span style="color:red;">回顧期間 (Lookback Period)</span></th><td>回顧4週內最低日收盤價，即為商品進場價</td></tr>
+<tr><th>履約價格 (Strike)</th><td>回顧期間最低收盤價 × 100%</td></tr>
+<tr><th>下限價格 (Knock-in)</th><td>回顧期間最低收盤價 × 90%</td></tr>
 <tr><th>下限價格觀察頻率 (AKI)</th><td>每個工作日觀察一次 (Daily)</td></tr>
-<tr><th>提前出場價格 (KO)<br><span style="color:red;">逐期遞減（Stepdown）</span></th><td>期初價格 × 100% → 95% → 90% → 85% → 80% → 75%</td></tr>
-<tr><th>提前出場價格觀察頻率</th><td>每一期配息期間最後一天觀察 (Monthly)</td></tr>
-<tr><th>KO是否記憶</th><td>Yes</td></tr>
-<tr><th>配息率</th><td>15% <span class="tooltip">(p.a.)<span class="tooltiptext">年化報酬率，固定配息計算方式</span></span></td></tr>
+<tr><th>紅利率 (Bonus Coupon)</th><td>12% <span class="tooltip">(flat)<span class="tooltiptext">實質報酬率</span></span></td></tr>
 </table>
 
 
 <div class="product-info">
 
   <div class="info-line">
-    <strong>💵 固定配息：</strong> 持有期間不論股價漲跌，每月固定領 15% 年息。
+    <strong>💵 紅利率 (Bonus Coupon)：</strong> 已表現最差股票的<span style="color:red;">回顧期間</span>最低價，起算的漲幅在0~12%之間，投資人可領取12%絕對報酬(年化報酬24%)。
+  </div>
+
+  <div class="info-line">
+    <strong>🔊 參與表現：</strong> 以表現最差股票的<span style="color:red;">回顧期間</span>最低價，起算的漲幅超過12%，會100%參與上漲幅度，漲多少拿多少。
+  </div>
+
+  <div class="info-line">
+    <strong>⬇️ 下限價 (Knock-in)：</strong> 觀察期間從沒有任一個連結股票觸及下限價，即使到期時股票價格低於履約價格，也不用實物履約。
   </div>
 
   <div class="info-line">
     <strong>⚖️ 履約價 (Strike)：</strong> 最差情況需用此價格承接表現最差的連結股票。
   </div>
 
-  <div class="info-line">
-    <strong>⬇️ 下限價 (Knock-In)：</strong> 觀察期間從沒有任一個連結股票觸及下限價，即使到期時股票價格低於履約價格，也不用實物履約。
-  </div>
-
-  <div class="info-line">
-    <strong>⏹️ <span style="color:red;">逐期遞減式</span>自動提前出場 (Stepdown Knock-Out)：</strong> 每一期配息期間的最後一天觀察一次，若所有連結標的均<strong>曾經</strong>於觀察日高於當期的 Stepdown KO 價格，則商品提前出場，投資人領回本金及應計利息。
-  </div>
-
   <div class="info-line attention">
     <strong>⚠️ 注意事項：</strong>
     <ul>
-<li>KO 價格為逐期遞減（Stepdown），僅在各配息期間最後一天進行單次觀察。</li>
-<li>若發生 KO 提前出場，依產品說明書中固定配息率計算應計利息。</li>
-<li>自動提前出場與期末評價日為獨立事件，若未發生 KO 事件，則依期末股票收盤價格決定是否實物履約。</li>
+      <li>至少需要連結兩檔股票以上</li>
+      <li>期初價格為每個股票分別觀察，都是取用各股票回顧期間最低收盤價</li>
+      <li>Bonus Coupon 是商品在期末評價日時仍處於履約價之上，才可以獲得的保證最低收益</li>
     </ul>
   </div>
 
@@ -409,16 +406,16 @@ table tr:hover td {
 <div class="scenario-cards">
 
 <div class="scenario scenarioA" onclick="showScenarioChart('A')">
-<div class="scenario-title">A情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格大於等於(>=)履約價格(Strike)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="scenario-title">A情境</div><div class="scenario-desc">最差股票表現漲幅達到20%，大於等於(>=)紅利率(Bonus Coupon) 12%</div><div class="scenario-desc">投資人領回: 100%本金 + 20%漲幅</div></div>
 
 <div class="scenario scenarioB" onclick="showScenarioChart('B')">
-<div class="scenario-title">B情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，但是從來沒有觸及下限價(KI)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="scenario-title">B情境</div><div class="scenario-desc">最差股票表現漲幅8%，介於履約價格(Strike)及紅利率(Bonus Coupon)之間</div><div class="scenario-desc">投資人領回: 100%本金 + 12%紅利率(Bonus Coupon)</div></div>
 
 <div class="scenario scenarioC" onclick="showScenarioChart('C')">
-<div class="scenario-title">C情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，而且曾經觸及過下限價(KI)</div><div class="scenario-desc">投資人於到期日，以履約價格轉換成表現最差連結股票 + 應計配息</div></div>
+<div class="scenario-title">C情境</div><div class="scenario-desc">最差股票股價小於100%履約價格，但是存續期間內收盤價格，從來沒有碰到90%下限價格</div><div class="scenario-desc">投資人領回: 100%本金</div></div>
 
 <div class="scenario scenarioD" onclick="showScenarioChart('D')">
-<div class="scenario-title">D情境</div><div class="scenario-desc">在保證領息期間過後，連結的所有股票均漲過提前出場價格(KO)</div><div class="scenario-desc">投資人領回: 100%本金 + 應計配息</div></div>
+<div class="scenario-title">D情境</div><div class="scenario-desc">最差股票股價小於100%履約價格，且存續期間內收盤價格曾經跌破90%下限價格</div><div class="scenario-desc">投資人於到期日，以履約價格轉換成表現最差連結股票</div></div>
 </div>
 
 
@@ -959,17 +956,17 @@ document.getElementById('faqModal').addEventListener('click', function(event) {
 // -----------------------------
 const totalDays = 150; // 六個月 150 天
 
-const strikeLine = 75;
-const kiLine = 60;
-const koLine = 100;
+const strikeLine = 100;
+const kiLine = 90;
+const koLine = 112;
 
 // -----------------------------
 // 生成資料
 // -----------------------------
-const dataA = [100, 90, 80, 55, 68, 55, 78];
-const dataB = [100, 80, 85, 65, 70, 76, 65];
-const dataC = [100, 85, 90, 85, 70, 50, 65];
-const dataD = [100, 85, 90, 85, 93, null, null];
+const dataA = [100, 80, 85, 95, 90, 110, 120];
+const dataB = [100, 80, 90, 85, 100, 95, 108];
+const dataC = [100, 110, 95, 98, 100, 93, 95];
+const dataD = [100, 110, 85, 90, 95, 85, 95];
 
 
 
@@ -989,19 +986,19 @@ function showScenarioChart(type){
     switch(type){
         case 'A': 
             selectedData = dataA; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            cashFlowData = ['','','','','','','本金+漲幅']; 
             break;
         case 'B': 
             selectedData = dataB; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            cashFlowData = ['','','','','','','本金+紅利']; 
             break;
         case 'C': 
             selectedData = dataC; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','固定配息','固定配息','股票+配息']; 
+            cashFlowData = ['','','','','','','本金']; 
             break;
         case 'D': 
             selectedData = dataD; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','應計配息']; 
+            cashFlowData = ['','','','','','','股票']; 
             break;
         default: return;
     }
@@ -1028,24 +1025,14 @@ function showScenarioChart(type){
             labels: months,
             datasets:[
                 { label: '股價', data: selectedData, borderColor:'#0077cc', borderWidth:5, fill:false, tension:0.5 },
-
-{
-    label: 'KO (Stepdown)',
-    data: [100 ,100, 95, 90, 85, 80, 75],
-    borderColor: 'red',
-    borderWidth: 2,
-    borderDash: [7, 7],
-    fill: false,
-    pointRadius: 0,
-    stepped: 'before'   }
-,
-                { label: '75% Strike', data:Array(7).fill(75), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false },
-                { label: '60% KI', data:Array(7).fill(60), borderColor:'#ff8800', borderWidth:2, borderDash:[10,5], fill:false }
+                { label: '112% 紅利率', data:Array(7).fill(112), borderColor:'#ff0000', borderWidth:2, borderDash:[10,5], fill:false },
+                { label: '100% Strike', data:Array(7).fill(100), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false },
+                { label: '90% KI', data:Array(7).fill(90), borderColor:'#ff8800', borderWidth:2, borderDash:[10,5], fill:false }
             ]
         },
         options:{
             responsive:true,
-            scales:{ y:{ min:40,max:140, title:{ display:true, text:'股價', font:{size:20} } }, x:{ ticks:{ font:{ size:15 } } } },
+            scales:{ y:{ min:70,max:130, title:{ display:true, text:'股價', font:{size:20} } }, x:{ ticks:{ font:{ size:15 } } } },
             plugins:{ legend:{ labels:{ font:{ size:18 } } }, scenarioLabel:{ label:type+' 情境' } }
         },
         plugins:[scenarioLabelPlugin]
@@ -1059,7 +1046,7 @@ function showScenarioChart(type){
 
     const xScale = scenarioChart.scales.x;
     cashFlowData.forEach((cf, i) => {
-    if (cf === '') return; 
+    if (cf === '') return;  // 空字串直接跳過，不生成 div
         const div = document.createElement('div');
         div.style.position = 'absolute';
         div.style.bottom = '0';

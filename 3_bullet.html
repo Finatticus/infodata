@@ -17,22 +17,29 @@
     color: #333;
     margin: 0;
 }
+.section-wrapper {
+    position: relative; 
+}
+
 .back-btn {
     position: absolute;
-    top: 20px;
-    left: 60px;
-    background: linear-gradient(135deg,#0077cc,#005999);
-    color: white;
-    border: none;
-    padding: 10px 18px;
+    left: 20px;   /* 越大越往右 */
+    top: 0px;     /* 越大越往下 */
+
+    background: #ffffff;
+    color: #004c91;
+    border: 2px solid #1f72c6;
+    padding: 7px 16px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 16px;
     transition: 0.3s;
 }
+
 .back-btn:hover {
-    background: linear-gradient(135deg,#005999,#003366);
+    background: #e6f0ff;
 }
+
 
 /* ===================== Container ===================== */ .container {
     background: #fff;
@@ -298,7 +305,9 @@ table tr:hover td {
 </head>
 <body>
 
+<div class="section-wrapper">
 <button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
+
 
 <div class="container">
 <h2>🔹 Bullet FCN</h2>
@@ -956,10 +965,10 @@ const koLine = 100;
 // -----------------------------
 // 生成資料
 // -----------------------------
-const dataA = [100, 80, 55, 68, 55, 80];
-const dataB = [100, 75, 65, 72, 80, 65];
-const dataC = [100, 80, 85, 70, 50, 65];
-const dataD = [100, 95, 85, 105, null, null];
+const dataA = [100, 85, 90, 55, 68, 55, 80];
+const dataB = [100, 80, 90, 65, 72, 80, 65];
+const dataC = [100, 90, 80, 85, 70, 50, 65];
+const dataD = [100, 95, 80, 85, 105, null, null];
 
 
 
@@ -972,26 +981,26 @@ let scenarioChart = null;
 
 function showScenarioChart(type){
     if(scenarioChart) scenarioChart.destroy();
-    const months = ['1月','2月','3月','4月','5月','6月'];
+    const months = ['期初','1月','2月','3月','4月','5月','6月'];
     let selectedData;
     let cashFlowData;
 
     switch(type){
         case 'A': 
             selectedData = dataA; 
-            cashFlowData = ['固定配息','','','','','本金+配息']; 
+            cashFlowData = ['','固定配息','','','','','本金+配息']; 
             break;
         case 'B': 
             selectedData = dataB; 
-            cashFlowData = ['固定配息','','','','','本金+配息']; 
+            cashFlowData = ['','固定配息','','','','','本金+配息']; 
             break;
         case 'C': 
             selectedData = dataC; 
-            cashFlowData = ['固定配息','','','','','股票+配息']; 
+            cashFlowData = ['','固定配息','','','','','股票+配息']; 
             break;
         case 'D': 
             selectedData = dataD; 
-            cashFlowData = ['固定配息',]; 
+            cashFlowData = ['','固定配息',]; 
             break;
         default: return;
     }
@@ -1018,9 +1027,9 @@ function showScenarioChart(type){
             labels: months,
             datasets:[
                 { label: '股價', data: selectedData, borderColor:'#0077cc', borderWidth:5, fill:false, tension:0.5 },
-                { label: '100% KO', data:Array(6).fill(100), borderColor:'#ff0000', borderWidth:2, borderDash:[10,5], fill:false },
-                { label: '75% Strike', data:Array(6).fill(75), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false },
-                { label: '60% KI', data:Array(6).fill(60), borderColor:'#ff8800', borderWidth:2, borderDash:[10,5], fill:false }
+                { label: '100% KO', data:Array(7).fill(100), borderColor:'#ff0000', borderWidth:2, borderDash:[10,5], fill:false },
+                { label: '75% Strike', data:Array(7).fill(75), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false },
+                { label: '60% KI', data:Array(7).fill(60), borderColor:'#ff8800', borderWidth:2, borderDash:[10,5], fill:false }
             ]
         },
         options:{
@@ -1039,12 +1048,12 @@ function showScenarioChart(type){
 
     const xScale = scenarioChart.scales.x;
 cashFlowData.forEach((cf, i) => {
-    if (cf === '') return;  // 空字串直接跳過，不生成 div
+    if (cf === '') return;  
 
     const div = document.createElement('div');
     div.style.position = 'absolute';
     div.style.bottom = '0';
-    div.style.left = (xScale.getPixelForTick(i) - 40/2) + 'px';
+    div.style.left = (xScale.getPixelForTick(i) - 40/2-15) + 'px';
     div.style.width = '80px';
     div.style.height = '40px';
     div.style.backgroundColor = '#f9fafc';
