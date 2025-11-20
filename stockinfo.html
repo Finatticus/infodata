@@ -1,0 +1,175 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>股票查詢工具</title>
+<style>
+    body {
+        background: #0e1a2b;
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 20px;
+    }
+    h1 {
+        text-align: center;
+        color: #4dc4ff;
+        margin-bottom: 20px;
+    }
+    .container {
+        max-width: 900px;
+        margin: auto;
+    }
+    .input-box {
+        background: #102542;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    input {
+        width: 70%;
+        padding: 10px;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+    }
+    button {
+        padding: 10px 18px;
+        background: #1f72c6;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        margin-left: 10px;
+        cursor: pointer;
+    }
+    .card {
+        background: #102542;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    .row { 
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 10px;
+    }
+    .info-box {
+        flex: 1;
+        min-width: 200px;
+        background: #12345a;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 15px;
+    }
+    canvas {
+        margin-top: 25px;
+        background: #102542;
+        padding: 10px;
+        border-radius: 10px;
+    }
+    .error {
+        margin-top: 20px;
+        color: #ff7777;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>📈 股票查詢工具</h1>
+
+    <div class="input-box">
+        <input id="tickerInput" placeholder="例如：AAPL、TSLA、NVDA、MSFT" />
+        <button onclick="loadStock()">查詢</button>
+    </div>
+
+    <div id="stockInfo"></div>
+
+    <canvas id="chart" height="120"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+let chartInstance = null;
+
+async function loadStock() {
+    console.log("查詢觸發");  // 測試是否被觸發
+    const ticker = document.getElementById("tickerInput").value.trim().toUpperCase();
+    if (!ticker) {
+        document.getElementById("stockInfo").innerHTML = '<p class="error">請輸入股票代號。</p>';
+        return;
+    }
+
+    document.getElementById("stockInfo").innerHTML = '<p>讀取中…</p>';
+
+    const url = `https://yahoo-finance-api.vercel.app/${ticker}`;
+
+    try {
+        const res = await fetch(url);
+        if (!res.ok) {
+            throw new Error(`HTTP 錯誤：${res.status}`);
+        }
+        const data = await res.json();
+        if (!data.price) {
+            throw new Error("資料格式錯誤");
+        }
+        const info = data.price;
+
+        document.getElementById("stockInfo").innerHTML = `
+            <div class="card">
+                <h2>${info.shortName} (${ticker})</h2>
+                <div class="row">
+                    <div class="info-box"><b>現價</b><br>${info.regularMarketPrice}</div>
+                    <div class="info-box"><b>漲跌</b><br>${info.regularMarketChange} (${info.regularMarketChangePercent}%)</div>
+                    <div class="info-box"><b>市值</b><br>${info.marketCap}</div>
+                    <div class="info-box"><b>52W 範圍</b><br>${info.fiftyTwoWeekLow} ~ ${info.fiftyTwoWeekHigh}</div>
+                    <div class="info-box"><b>PE Ratio</b><br>${info.trailingPE ?? "N/A"}</div>
+                </div>
+            </div>
+        `;
+
+        const history = data.chart.result[0].indicators.quote[0];
+        const timestamps = data.chart.result[0].timestamp;
+
+        const labels = timestamps.map(ts => new Date(ts * 1000).toLocaleDateString());
+        const prices = history.close;
+
+        drawChart(labels, prices);
+    } catch (err) {
+        console.error(err);
+        document.getElementById("stockInfo").innerHTML = `<p class="error">查詢錯誤：${err.message}</p>`;
+    }
+}
+
+function drawChart(labels, prices) {
+    const ctx = document.getElementById("chart").getContext("2d");
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "股價走勢",
+                data: prices,
+                borderWidth: 2,
+                borderColor: "#4dc4ff",
+                pointRadius: 0,
+                fill: false,
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+</script>
+
+</body>
+</html>
