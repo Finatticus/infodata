@@ -53,7 +53,7 @@ canvas{ width:100% !important; height:100% !important;}
     color: #fff;
 }
 
-    .api-note {
+.api-note {
     font-size: 15px;
     color: #a0cfff;     
     margin-top: 6px;
@@ -79,14 +79,19 @@ canvas{ width:100% !important; height:100% !important;}
     <p class="api-note">免費API…僅支援美股，每天800次 (省著點用)</p>
 </div>
 
+
 <div id="techOptions">
-    <label class="tech-option"><input type="checkbox" id="ma20"><span>MA 20</span></label>
-    <label class="tech-option"><input type="checkbox" id="ma50"><span>MA 50</span></label>
-    <label class="tech-option"><input type="checkbox" id="ma200"><span>MA 200</span></label>
-    <label class="tech-option"><input type="checkbox" id="bollinger"><span>布林通道</span></label>
+    <label class="tech-option"><input type="checkbox" id="hv126"><span>歷史波動度(6m)</span></label>
+    <label class="tech-option"><input type="checkbox" id="stdDev"><span>標準差(6m)</span></label>
     <label class="tech-option"><input type="checkbox" id="volume"><span>成交量</span></label>
-    <label class="tech-option"><input type="checkbox" id="rsi"><span>RSI</span></label>
+    <label class="tech-option"><input type="checkbox" id="maAll"><span>移動平均線MA (20/60/200)</span></label>
+    <label class="tech-option"><input type="checkbox" id="rsi"><span>相對強弱指標(RSI)</span></label>
+    <label class="tech-option"><input type="checkbox" id="macd"><span>平滑異同移動平均線指標(MACD)</span></label>
+    <label class="tech-option"><input type="checkbox" id="adx"><span>平均趨向指數(ADX)</span></label>
+    <label class="tech-option"><input type="checkbox" id="bias"><span>乖離率(BIAS)</span></label>
+    <label class="tech-option"><input type="checkbox" id="bollinger"><span>布林通道</span></label>
 </div>
+
 
 <div id="stockInfo"></div>
 <div class="chart-title" id="chartTitle"></div>
@@ -96,6 +101,7 @@ canvas{ width:100% !important; height:100% !important;}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 let chartInstance = null;
 const API_KEY = "d7de0902b30e47dead805e170f78bac6";
@@ -143,8 +149,8 @@ async function loadStock(){
         </div>`;
 
         document.getElementById("chartTitle").textContent=`📈 過去一年股價走勢 (${ticker})`;
-        updateChart(displayLabels, displayPrices, displayVolumes, prices);
         setupTechOptions(displayLabels, displayPrices, displayVolumes, prices);
+updateChart(displayLabels, prices, displayVolumes);
 
     }catch(err){
         console.error(err);
@@ -155,41 +161,19 @@ async function loadStock(){
 }
 
 function calculateMA(prices, period){
-    let ma=[];
-    for(let i=0;i<prices.length;i++){
-        if(i<period-1) ma.push(null);
-        else{
-            let sum=0;
-            for(let j=0;j<period;j++) sum+=prices[i-j];
-            ma.push(parseFloat((sum/period).toFixed(2)));
-        }
-    }
-    return ma;
+    let ma=[]; for(let i=0;i<prices.length;i++){ if(i<period-1) ma.push(null); else{ let sum=0; for(let j=0;j<period;j++) sum+=prices[i-j]; ma.push(parseFloat((sum/period).toFixed(2))); } } return ma;
 }
-
 function calculateBollinger(prices, period=20, stdFactor=2){
-    const middle=calculateMA(prices, period);
-    let upper=[], lower=[];
-    for(let i=0;i<prices.length;i++){
-        if(i<period-1){ upper.push(null); lower.push(null); }
-        else{
-            let slice=prices.slice(i-period+1,i+1);
-            let mean=slice.reduce((a,b)=>a+b)/period;
-            let std=Math.sqrt(slice.reduce((a,b)=>a+(b-mean)**2,0)/period);
-            upper.push(parseFloat((mean+stdFactor*std).toFixed(2)));
-            lower.push(parseFloat((mean-stdFactor*std).toFixed(2)));
-        }
-    }
+    const middle=calculateMA(prices, period); let upper=[], lower=[];
+    for(let i=0;i<prices.length;i++){ if(i<period-1){ upper.push(null); lower.push(null); }else{ let slice=prices.slice(i-period+1,i+1); let mean=slice.reduce((a,b)=>a+b)/period; let std=Math.sqrt(slice.reduce((a,b)=>a+(b-mean)**2,0)/period); upper.push(parseFloat((mean+stdFactor*std).toFixed(2))); lower.push(parseFloat((mean-stdFactor*std).toFixed(2))); } }
     return {upper, middle, lower};
 }
-
 function calculateRSI(prices, period=14){
     let rsi=[], gains=[], losses=[];
     for(let i=0;i<prices.length;i++){
         if(i===0){ rsi.push(null); continue; }
         const change = prices[i]-prices[i-1];
-        gains.push(Math.max(change,0));
-        losses.push(Math.max(-change,0));
+        gains.push(Math.max(change,0)); losses.push(Math.max(-change,0));
         if(i<period){ rsi.push(null); continue; }
         const avgGain = gains.slice(i-period+1,i+1).reduce((a,b)=>a+b)/period;
         const avgLoss = losses.slice(i-period+1,i+1).reduce((a,b)=>a+b)/period;
@@ -198,78 +182,290 @@ function calculateRSI(prices, period=14){
     }
     return rsi;
 }
+function calculateMACD(prices, shortPeriod=12, longPeriod=26, signalPeriod=9){
+    function EMA(arr, period){ let k = 2/(period+1); let ema = []; arr.forEach((price,i)=>{ if(i===0) ema.push(price); else ema.push(price*k + ema[i-1]*(1-k)); }); return ema; }
+    const emaShort = EMA(prices, shortPeriod);
+    const emaLong = EMA(prices, longPeriod);
+    const macdLine = emaShort.map((v,i)=>v - emaLong[i]);
+    const signalLine = EMA(macdLine, signalPeriod);
+    return {macd: macdLine, signal: signalLine};
+}
+function calculateStd(prices, period=126){
+    let stdArr=[]; for(let i=0;i<prices.length;i++){ if(i<period-1){ stdArr.push(null); continue; } let slice=prices.slice(i-period+1,i+1); let mean=slice.reduce((a,b)=>a+b,0)/period; let variance=slice.reduce((a,b)=>a+(b-mean)**2,0)/period; stdArr.push(parseFloat(Math.sqrt(variance).toFixed(2))); } return stdArr;
+}
+function calculateBIASMulti(prices, periods=[6,12,24,72]){
+    const result = {};
+    periods.forEach(p=>{
+        result[p] = prices.map((price,i)=>{
+            const ma = calculateMA(prices, p)[i];
+            return ma===null ? null : parseFloat(((price-ma)/ma*100).toFixed(2));
+        });
+    });
+    return result;
+}
 
+function calculateHV(prices, period=126){
+    let hv=[]; for(let i=0;i<prices.length;i++){ if(i<period){ hv.push(null); continue; } let slice=prices.slice(i-period,i); let logReturns=[]; for(let j=1;j<slice.length;j++) logReturns.push(Math.log(slice[j]/slice[j-1])); let mean=logReturns.reduce((a,b)=>a+b,0)/logReturns.length; let variance=logReturns.reduce((a,b)=>a+(b-mean)**2,0)/logReturns.length; let dailyStd=Math.sqrt(variance); let annualizedHV=dailyStd*Math.sqrt(252)*100; hv.push(parseFloat(annualizedHV.toFixed(2))); } return hv;
+}
+function calculateADX(prices, period=14){
+    let tr=[], plusDM=[], minusDM=[]; for(let i=1;i<prices.length;i++){ const high=prices[i]; const low=prices[i-1]; tr.push(Math.abs(high-low)); plusDM.push(Math.max(high-prices[i-1],0)); minusDM.push(Math.max(prices[i-1]-high,0)); }
+    function EMA(arr, period){ let k = 2/(period+1); let ema=[]; arr.forEach((v,i)=>{ if(i===0) ema.push(v); else ema.push(v*k + ema[i-1]*(1-k)); }); return ema; }
+    let smPlusDM=EMA(plusDM, period); let smMinusDM=EMA(minusDM, period); let smTR=EMA(tr, period);
+    let plusDI=smPlusDM.map((v,i)=>100*v/(smTR[i]||1)); let minusDI=smMinusDM.map((v,i)=>100*v/(smTR[i]||1));
+    let dx=plusDI.map((v,i)=>Math.abs(v-minusDI[i])/((v+minusDI[i])||1)*100); let adx=EMA(dx, period); adx.unshift(null); return adx;
+}
+
+// ---- 技術指標選項處理 ----
 function setupTechOptions(labels, prices, volumes, fullPrices){
     const options = document.querySelectorAll(".tech-option");
     options.forEach(label=>{
         const checkbox = label.querySelector("input");
         label.onclick=()=>{
-            checkbox.checked = !checkbox.checked;
+            checkbox.checked=!checkbox.checked;
             label.classList.toggle("active", checkbox.checked);
-            updateChart(labels, prices, volumes, fullPrices);
+            updateChart(labels, fullPrices, volumes);
         }
     });
 }
 
-function updateChart(labels, prices, volumes, fullPrices){
-    const datasets=[{
-        label:"收盤價",
-        data:prices,
-        borderWidth:2,
-        borderColor:"#4dc4ff",
-        pointRadius:0,
-        fill:false,
-        tension:0.3,
-        yAxisID:'y1'
-    }];
+function updateChart(labels, fullPrices, volumes){
+    const datasets = [];
+    let yAxisCounter = 2; // 從 y2 開始分配給其他技術指標
+    const yAxesMap = {};
 
-    if(document.getElementById('ma20').checked) datasets.push({label:"MA 20",data:calculateMA(fullPrices,20).slice(-365),borderColor:"#ffcc00",borderWidth:2,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
-    if(document.getElementById('ma50').checked) datasets.push({label:"MA 50",data:calculateMA(fullPrices,50).slice(-365),borderColor:"#00ff99",borderWidth:2,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
-    if(document.getElementById('ma200').checked) datasets.push({label:"MA 200",data:calculateMA(fullPrices,200).slice(-365),borderColor:"#ff66ff",borderWidth:2,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
-
-    if(document.getElementById('bollinger').checked){
-        const bb=calculateBollinger(fullPrices);
-        datasets.push({label:'Boll Upper',data:bb.upper.slice(-365),borderColor:'#ff4444',borderWidth:1.5,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
-        datasets.push({label:'Boll Middle',data:bb.middle.slice(-365),borderColor:'#ffaa00',borderWidth:1.5,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
-        datasets.push({label:'Boll Lower',data:bb.lower.slice(-365),borderColor:'#44ff44',borderWidth:1.5,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
+    function getYAxisID(name){
+        if(name === "收盤價") return 'y1'; // 收盤價固定左側
+        if(name.startsWith("MA") || name.startsWith("Boll")) return 'yMA'; // MA 和 Bollinger 共用 yMA
+        if(name==="MACD") return 'yMACD'; // MACD 與 Signal 共用 yMACD
+        if(!yAxesMap[name]){ 
+            yAxesMap[name]='y'+yAxisCounter; 
+            yAxisCounter++; 
+        }
+        return yAxesMap[name];
     }
 
-    if(document.getElementById('rsi').checked) datasets.push({label:"RSI",data:calculateRSI(fullPrices).slice(-365),borderColor:"#ffaa00",borderWidth:1.8,pointRadius:0,fill:false,tension:0.3,yAxisID:'y2'});
-
-    if(document.getElementById('volume').checked) datasets.push({
-        label:"成交量",
-        data:volumes.slice(-365),
-        type:'bar',
-        backgroundColor:'rgba(0,200,0,0.3)',
-        yAxisID:'y3'
+    // 收盤價
+    datasets.push({
+        label: "收盤價",
+        data: fullPrices.slice(-365),
+        borderColor: "#4dc4ff",
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: false,
+        tension: 0.3,
+        yAxisID: getYAxisID("收盤價")
     });
 
-    const ctx=document.getElementById("chart").getContext("2d");
+    // 成交量
+    if(document.getElementById('volume').checked){
+        datasets.push({
+            label: "成交量",
+            data: volumes.slice(-365),
+            type: 'bar',
+            backgroundColor: 'rgba(0,200,0,0.3)',
+            yAxisID: getYAxisID("成交量")
+        });
+    }
+
+    // MA
+    if(document.getElementById('maAll').checked){
+        datasets.push({
+            label: "MA 20",
+            data: calculateMA(fullPrices,20).slice(-365),
+            borderColor:"#ffcc00",
+            borderWidth:2,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID: getYAxisID("MA 20")
+        });
+        datasets.push({
+            label: "MA 60",
+            data: calculateMA(fullPrices,60).slice(-365),
+            borderColor:"#00ff99",
+            borderWidth:2,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID: getYAxisID("MA 60")
+        });
+        datasets.push({
+            label: "MA 200",
+            data: calculateMA(fullPrices,200).slice(-365),
+            borderColor:"#ff66ff",
+            borderWidth:2,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID: getYAxisID("MA 200")
+        });
+    }
+
+    // 其他技術指標
+    if(document.getElementById('rsi').checked){
+        datasets.push({
+            label:"相對強弱指數(RSI)",
+            data:calculateRSI(fullPrices).slice(-365),
+            borderColor:"#ffaa00",
+            borderWidth:1.8,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID:getYAxisID("RSI")
+        });
+    }
+
+// MACD
+if(document.getElementById('macd').checked){ 
+    const macd = calculateMACD(fullPrices);
+    datasets.push({
+        label:"MACD線", 
+        data: macd.macd.slice(-365), 
+        borderColor:"#ff9900", 
+        borderWidth:2, 
+        pointRadius:0, 
+        fill:false, 
+        tension:0.3, 
+        yAxisID: 'yMACD' // 固定右側
+    });
+    datasets.push({
+        label:"信號線(Signal line)", 
+        data: macd.signal.slice(-365), 
+        borderColor:"#00ccff", 
+        borderWidth:2, 
+        pointRadius:0, 
+        fill:false, 
+        tension:0.3, 
+        yAxisID: 'yMACD' // 同 MACD 共用
+    }); 
+}
+
+    if(document.getElementById('adx').checked){
+        datasets.push({
+            label:"平均趨向指數ADX",
+            data:calculateADX(fullPrices).slice(-365),
+            borderColor:"#ffaa00",
+            borderWidth:2,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID:getYAxisID("ADX")
+        });
+    }
+
+if(document.getElementById('bias').checked){
+    const biases = calculateBIASMulti(fullPrices,[6,12,24,72]);
+    const colors = {6:"#44ff44", 12:"#44ffff", 24:"#ffaa44", 72:"#ff44ff"};
+    for(let period in biases){
+        datasets.push({
+            label:`BIAS ${period}`,
+            data: biases[period].slice(-365),
+            borderColor: colors[period],
+            borderWidth:2,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID: 'yBIAS'  
+        });
+    }
+}
+
+
+    if(document.getElementById('hv126').checked){
+        datasets.push({
+            label:"歷史波動度",
+            data:calculateHV(fullPrices,126).slice(-365),
+            borderColor:"#ff6600",
+            borderWidth:2,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID:getYAxisID("HV 126")
+        });
+    }
+
+    if(document.getElementById('stdDev').checked){
+        datasets.push({
+            label:"標準差",
+            data:calculateStd(fullPrices,126).slice(-365),
+            borderColor:"#ff44ff",
+            borderWidth:2,
+            pointRadius:0,
+            fill:false,
+            tension:0.3,
+            yAxisID:getYAxisID("StdDev")
+        });
+    }
+
+    if(document.getElementById('bollinger').checked){
+        const bb = calculateBollinger(fullPrices);
+        datasets.push({label:'Boll Upper', data:bb.upper.slice(-365), borderColor:'#ff4444', borderWidth:1.5, pointRadius:0, fill:false, tension:0.3, yAxisID:getYAxisID("Boll Upper")});
+        datasets.push({label:'Boll Middle', data:bb.middle.slice(-365), borderColor:'#ffaa00', borderWidth:1.5, pointRadius:0, fill:false, tension:0.3, yAxisID:getYAxisID("Boll Middle")});
+        datasets.push({label:'Boll Lower', data:bb.lower.slice(-365), borderColor:'#44ff44', borderWidth:1.5, pointRadius:0, fill:false, tension:0.3, yAxisID:getYAxisID("Boll Lower")});
+    }
+
+// Y 軸設定
+const scales = {
+    x: { ticks:{ autoSkip:true, maxTicksLimit:25, minRotation:45, maxRotation:45 } },
+    y1: { position:'left', title:{display:true,text:'收盤價'}, beginAtZero:false } // 左側只收盤價
+};
+
+// MA / Bollinger 右側
+if(document.getElementById('maAll').checked || document.getElementById('bollinger').checked){
+    scales['yMA'] = { position:'right', title:{display:true,text:'MA/Boll'}, beginAtZero:false, grid:{drawOnChartArea:false} };
+}
+
+// MACD 右側
+if(document.getElementById('macd').checked){
+    scales['yMACD'] = { position:'right', title:{display:true,text:'MACD'}, beginAtZero:false, grid:{drawOnChartArea:false} };
+}
+
+if(document.getElementById('bias').checked){
+    scales['yBIAS'] = {
+        position:'right',
+        title:{display:true,text:'BIAS'},
+        beginAtZero:false,
+        grid:{drawOnChartArea:false}
+    };
+}
+
+// 其他技術指標
+for(let key in yAxesMap){
+    if(key !== "收盤價" && key !== "MACD" && key !== "MA 20" && key !== "MA 60" && key !== "MA 200" && key !== "Boll Upper" && key !== "Boll Middle" && key !== "Boll Lower"){
+        scales[yAxesMap[key]] = { position:'right', title:{display:true,text:key}, beginAtZero:true, grid:{drawOnChartArea:false} };
+    }
+}
+
+
+
+    const ctx = document.getElementById("chart").getContext("2d");
     if(chartInstance) chartInstance.destroy();
-    chartInstance=new Chart(ctx,{
+    chartInstance = new Chart(ctx, {
         type:'line',
-        data:{labels:labels,datasets:datasets},
+        data:{ labels: labels.slice(-365), datasets: datasets },
         options:{
             responsive:true,
             maintainAspectRatio:false,
             interaction:{mode:'index', intersect:false},
-            plugins:{ tooltip:{ callbacks:{ label:function(context){
-                let val = context.raw;
-                if(val!==null && val!==undefined) val=parseFloat(val).toFixed(2);
-                return context.dataset.label+': '+val;
-            }}}},
-            scales:{
-                y1:{ position:'left', title:{display:true,text:'價格'}, beginAtZero:false },
-                y2:{ position:'right', title:{display:true,text:'RSI'}, beginAtZero:true, max:100, grid:{drawOnChartArea:false}, display:document.getElementById('rsi').checked },
-                y3:{ position:'right', title:{display:true,text:'成交量'}, beginAtZero:true, grid:{drawOnChartArea:false}, display:document.getElementById('volume').checked },
-                x:{ ticks:{ autoSkip:true, maxTicksLimit:25, minRotation:45,maxRotation:45} }
+            plugins:{
+                tooltip:{
+                    callbacks:{
+                        label:function(context){
+                            let val=context.raw;
+                            if(val!==null && val!==undefined) val=parseFloat(val).toFixed(2);
+                            return context.dataset.label+': '+val;
+                        }
+                    }
+                }
             },
+            scales: scales,
             elements:{ point:{ radius:0 } },
             animation:{ duration:500 }
         }
     });
 }
+
 </script>
+
 </body>
 </html>
-
