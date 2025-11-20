@@ -53,6 +53,16 @@ canvas{ width:100% !important; height:100% !important;}
     color: #fff;
 }
 
+    .api-note {
+    font-size: 15px;
+    color: #a0cfff;     
+    margin-top: 6px;
+    margin-left: 4px;  
+    font-style: italic;  
+    text-align: left;  
+}
+
+
 </style>
 </head>
 <body>
@@ -66,6 +76,7 @@ canvas{ width:100% !important; height:100% !important;}
 <div class="input-box">
     <input id="tickerInput" placeholder="例如：AAPL、TSLA、MSFT" />
     <button onclick="loadStock()">查詢</button>
+    <p class="api-note">免費API…僅支援美股，每天800次 (省著點用)</p>
 </div>
 
 <div id="techOptions">
@@ -261,3 +272,4 @@ function updateChart(labels, prices, volumes, fullPrices){
 </script>
 </body>
 </html>
+
