@@ -2,174 +2,262 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-<title>股票查詢工具</title>
+<title>股票技術分析工具</title>
 <style>
-    body {
-        background: #0e1a2b;
-        color: #fff;
-        font-family: 'Segoe UI', sans-serif;
-        margin: 0;
-        padding: 20px;
-    }
-    h1 {
-        text-align: center;
-        color: #4dc4ff;
-        margin-bottom: 20px;
-    }
-    .container {
-        max-width: 900px;
-        margin: auto;
-    }
-    .input-box {
-        background: #102542;
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-    input {
-        width: 70%;
-        padding: 10px;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-    }
-    button {
-        padding: 10px 18px;
-        background: #1f72c6;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        margin-left: 10px;
-        cursor: pointer;
-    }
-    .card {
-        background: #102542;
-        padding: 20px;
-        border-radius: 12px;
-        margin-top: 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-    .row { 
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-top: 10px;
-    }
-    .info-box {
-        flex: 1;
-        min-width: 200px;
-        background: #12345a;
-        padding: 15px;
-        border-radius: 10px;
-        font-size: 15px;
-    }
-    canvas {
-        margin-top: 25px;
-        background: #102542;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    .error {
-        margin-top: 20px;
-        color: #ff7777;
-    }
+body { background:#0e1a2b; color:#fff; font-family:'Segoe UI',sans-serif; margin:0; padding:20px; }
+h1{text-align:center; color:#4dc4ff; margin-bottom:20px;}
+.container{ max-width:950px; margin:auto; }
+.input-box{ background:#102542; padding:20px; border-radius:12px; margin-bottom:20px; box-shadow:0 4px 12px rgba(0,0,0,0.4);}
+input{ width:60%; padding:10px; border:none; border-radius:6px; font-size:16px;}
+button{ padding:10px 18px; background:#1f72c6; color:#fff; border:none; border-radius:6px; margin-left:10px; cursor:pointer;}
+.card{ background:#102542; padding:20px; border-radius:12px; margin-top:20px; box-shadow:0 4px 12px rgba(0,0,0,0.4);}
+.row{ display:flex; flex-wrap:wrap; gap:15px; margin-top:10px;}
+.info-box{ flex:1; min-width:140px; background:#12345a; padding:15px; border-radius:10px; font-size:15px;}
+.canvas-container{ width:100%; max-width:950px; height:450px; margin-top:25px; background:#102542; padding:10px; border-radius:10px;}
+canvas{ width:100% !important; height:100% !important;}
+.error{ margin-top:20px; color:#ff7777; }
+.chart-title{ text-align:center; margin-top:15px; font-size:18px; color:#4dc4ff; }
+
+/* 技術指標選項美化 */
+#techOptions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:15px; justify-content:center; }
+.tech-option{
+    display:flex; align-items:center; gap:6px; background:#1f2f4c; padding:8px 12px; border-radius:8px; cursor:pointer;
+    transition:0.25s; user-select:none;
+}
+.tech-option input{ display:none; }
+.tech-option span{ font-size:14px; color:#a0cfff; }
+.tech-option.active{ background:#4dc4ff; }
+.tech-option.active span{ color:#0e1a2b; font-weight:600; }
+
+.section-wrapper {
+    position: relative; 
+}
+
+.back-btn {
+    position: absolute;
+    left: 20px;   
+    top: 0px;    
+
+    background: #102542;
+    color: #4dc4ff;
+    border: 2px solid #4dc4ff;
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: #1f2f4c;;
+    color: #fff;
+}
+
 </style>
 </head>
-
 <body>
 
+<div class="section-wrapper">
+<button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
+
 <div class="container">
-    <h1>📈 股票查詢工具</h1>
+<h1>股票技術分析工具</h1>
 
-    <div class="input-box">
-        <input id="tickerInput" placeholder="例如：AAPL、TSLA、NVDA、MSFT" />
-        <button onclick="loadStock()">查詢</button>
-    </div>
+<div class="input-box">
+    <input id="tickerInput" placeholder="例如：AAPL、TSLA、MSFT" />
+    <button onclick="loadStock()">查詢</button>
+</div>
 
-    <div id="stockInfo"></div>
+<div id="techOptions">
+    <label class="tech-option"><input type="checkbox" id="ma20"><span>MA 20</span></label>
+    <label class="tech-option"><input type="checkbox" id="ma50"><span>MA 50</span></label>
+    <label class="tech-option"><input type="checkbox" id="ma200"><span>MA 200</span></label>
+    <label class="tech-option"><input type="checkbox" id="bollinger"><span>布林通道</span></label>
+    <label class="tech-option"><input type="checkbox" id="volume"><span>成交量</span></label>
+    <label class="tech-option"><input type="checkbox" id="rsi"><span>RSI</span></label>
+</div>
 
-    <canvas id="chart" height="120"></canvas>
+<div id="stockInfo"></div>
+<div class="chart-title" id="chartTitle"></div>
+<div class="canvas-container">
+    <canvas id="chart" width="950" height="450"></canvas>
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 let chartInstance = null;
+const API_KEY = "d7de0902b30e47dead805e170f78bac6";
 
-async function loadStock() {
-    console.log("查詢觸發");  // 測試是否被觸發
+async function loadStock(){
     const ticker = document.getElementById("tickerInput").value.trim().toUpperCase();
-    if (!ticker) {
-        document.getElementById("stockInfo").innerHTML = '<p class="error">請輸入股票代號。</p>';
-        return;
-    }
+    if(!ticker){ document.getElementById("stockInfo").innerHTML='<p class="error">請輸入股票代號。</p>'; return; }
+    document.getElementById("stockInfo").innerHTML='<p>讀取中…</p>';
 
-    document.getElementById("stockInfo").innerHTML = '<p>讀取中…</p>';
+    try{
+        const quoteUrl=`https://api.twelvedata.com/quote?symbol=${ticker}&apikey=${API_KEY}`;
+        const tsUrl=`https://api.twelvedata.com/time_series?symbol=${ticker}&interval=1day&outputsize=750&apikey=${API_KEY}`;
+        const [quoteRes, tsRes]=await Promise.all([fetch(quoteUrl), fetch(tsUrl)]);
+        const quoteData=await quoteRes.json();
+        const tsData=await tsRes.json();
+        if(quoteData.status==="error") throw new Error(quoteData.message);
+        if(tsData.status==="error") throw new Error(tsData.message);
 
-    const url = `https://yahoo-finance-api.vercel.app/${ticker}`;
+        const values = tsData.values.filter(v=>v.close!==null && v.close!=="").reverse();
+        const prices = values.map(v=>parseFloat(v.close));
+        const volumes = values.map(v=>parseFloat(v.volume));
+        const labels = values.map(v=>v.datetime);
 
-    try {
-        const res = await fetch(url);
-        if (!res.ok) {
-            throw new Error(`HTTP 錯誤：${res.status}`);
-        }
-        const data = await res.json();
-        if (!data.price) {
-            throw new Error("資料格式錯誤");
-        }
-        const info = data.price;
+        const displayLabels = labels.slice(-365);
+        const displayPrices = prices.slice(-365);
+        const displayVolumes = volumes.slice(-365);
 
-        document.getElementById("stockInfo").innerHTML = `
-            <div class="card">
-                <h2>${info.shortName} (${ticker})</h2>
-                <div class="row">
-                    <div class="info-box"><b>現價</b><br>${info.regularMarketPrice}</div>
-                    <div class="info-box"><b>漲跌</b><br>${info.regularMarketChange} (${info.regularMarketChangePercent}%)</div>
-                    <div class="info-box"><b>市值</b><br>${info.marketCap}</div>
-                    <div class="info-box"><b>52W 範圍</b><br>${info.fiftyTwoWeekLow} ~ ${info.fiftyTwoWeekHigh}</div>
-                    <div class="info-box"><b>PE Ratio</b><br>${info.trailingPE ?? "N/A"}</div>
-                </div>
+        const high52 = Math.max(...displayPrices).toFixed(2);
+        const low52 = Math.min(...displayPrices).toFixed(2);
+
+        document.getElementById("stockInfo").innerHTML=`
+        <div class="card">
+            <h2>${quoteData.name || ticker} (${ticker})</h2>
+            <p><b>交易所：</b>${quoteData.exchange}</p>
+            <div class="row">
+                <div class="info-box"><b>現價</b><br>${parseFloat(quoteData.close).toFixed(2)}</div>
+                <div class="info-box"><b>漲跌</b><br>${parseFloat(quoteData.change).toFixed(2)} (${parseFloat(quoteData.percent_change).toFixed(2)}%)</div>
+                <div class="info-box"><b>52W 範圍</b><br>${low52} ~ ${high52}</div>
+                <div class="info-box"><b>開盤</b><br>${parseFloat(quoteData.open).toFixed(2)}</div>
+                <div class="info-box"><b>最高</b><br>${parseFloat(quoteData.high).toFixed(2)}</div>
+                <div class="info-box"><b>最低</b><br>${parseFloat(quoteData.low).toFixed(2)}</div>
+                <div class="info-box"><b>昨日收盤</b><br>${parseFloat(quoteData.previous_close).toFixed(2)}</div>
+                <div class="info-box"><b>成交量</b><br>${quoteData.volume ?? "N/A"}</div>
             </div>
-        `;
+        </div>`;
 
-        const history = data.chart.result[0].indicators.quote[0];
-        const timestamps = data.chart.result[0].timestamp;
+        document.getElementById("chartTitle").textContent=`📈 過去一年股價走勢 (${ticker})`;
+        updateChart(displayLabels, displayPrices, displayVolumes, prices);
+        setupTechOptions(displayLabels, displayPrices, displayVolumes, prices);
 
-        const labels = timestamps.map(ts => new Date(ts * 1000).toLocaleDateString());
-        const prices = history.close;
-
-        drawChart(labels, prices);
-    } catch (err) {
+    }catch(err){
         console.error(err);
-        document.getElementById("stockInfo").innerHTML = `<p class="error">查詢錯誤：${err.message}</p>`;
+        document.getElementById("stockInfo").innerHTML=`<p class="error">查詢錯誤：${err.message}</p>`;
+        document.getElementById("chartTitle").textContent="";
+        if(chartInstance) chartInstance.destroy();
     }
 }
 
-function drawChart(labels, prices) {
-    const ctx = document.getElementById("chart").getContext("2d");
-    if (chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(ctx, {
-        type: "line",
-        data: {
-            labels: labels,
-            datasets: [{
-                label: "股價走勢",
-                data: prices,
-                borderWidth: 2,
-                borderColor: "#4dc4ff",
-                pointRadius: 0,
-                fill: false,
-                tension: 0.2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
+function calculateMA(prices, period){
+    let ma=[];
+    for(let i=0;i<prices.length;i++){
+        if(i<period-1) ma.push(null);
+        else{
+            let sum=0;
+            for(let j=0;j<period;j++) sum+=prices[i-j];
+            ma.push(parseFloat((sum/period).toFixed(2)));
+        }
+    }
+    return ma;
+}
+
+function calculateBollinger(prices, period=20, stdFactor=2){
+    const middle=calculateMA(prices, period);
+    let upper=[], lower=[];
+    for(let i=0;i<prices.length;i++){
+        if(i<period-1){ upper.push(null); lower.push(null); }
+        else{
+            let slice=prices.slice(i-period+1,i+1);
+            let mean=slice.reduce((a,b)=>a+b)/period;
+            let std=Math.sqrt(slice.reduce((a,b)=>a+(b-mean)**2,0)/period);
+            upper.push(parseFloat((mean+stdFactor*std).toFixed(2)));
+            lower.push(parseFloat((mean-stdFactor*std).toFixed(2)));
+        }
+    }
+    return {upper, middle, lower};
+}
+
+function calculateRSI(prices, period=14){
+    let rsi=[], gains=[], losses=[];
+    for(let i=0;i<prices.length;i++){
+        if(i===0){ rsi.push(null); continue; }
+        const change = prices[i]-prices[i-1];
+        gains.push(Math.max(change,0));
+        losses.push(Math.max(-change,0));
+        if(i<period){ rsi.push(null); continue; }
+        const avgGain = gains.slice(i-period+1,i+1).reduce((a,b)=>a+b)/period;
+        const avgLoss = losses.slice(i-period+1,i+1).reduce((a,b)=>a+b)/period;
+        const rs = avgGain/(avgLoss||1);
+        rsi.push(parseFloat((100-(100/(1+rs))).toFixed(2)));
+    }
+    return rsi;
+}
+
+function setupTechOptions(labels, prices, volumes, fullPrices){
+    const options = document.querySelectorAll(".tech-option");
+    options.forEach(label=>{
+        const checkbox = label.querySelector("input");
+        label.onclick=()=>{
+            checkbox.checked = !checkbox.checked;
+            label.classList.toggle("active", checkbox.checked);
+            updateChart(labels, prices, volumes, fullPrices);
+        }
+    });
+}
+
+function updateChart(labels, prices, volumes, fullPrices){
+    const datasets=[{
+        label:"收盤價",
+        data:prices,
+        borderWidth:2,
+        borderColor:"#4dc4ff",
+        pointRadius:0,
+        fill:false,
+        tension:0.3,
+        yAxisID:'y1'
+    }];
+
+    if(document.getElementById('ma20').checked) datasets.push({label:"MA 20",data:calculateMA(fullPrices,20).slice(-365),borderColor:"#ffcc00",borderWidth:2,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
+    if(document.getElementById('ma50').checked) datasets.push({label:"MA 50",data:calculateMA(fullPrices,50).slice(-365),borderColor:"#00ff99",borderWidth:2,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
+    if(document.getElementById('ma200').checked) datasets.push({label:"MA 200",data:calculateMA(fullPrices,200).slice(-365),borderColor:"#ff66ff",borderWidth:2,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
+
+    if(document.getElementById('bollinger').checked){
+        const bb=calculateBollinger(fullPrices);
+        datasets.push({label:'Boll Upper',data:bb.upper.slice(-365),borderColor:'#ff4444',borderWidth:1.5,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
+        datasets.push({label:'Boll Middle',data:bb.middle.slice(-365),borderColor:'#ffaa00',borderWidth:1.5,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
+        datasets.push({label:'Boll Lower',data:bb.lower.slice(-365),borderColor:'#44ff44',borderWidth:1.5,pointRadius:0,fill:false,tension:0.3,yAxisID:'y1'});
+    }
+
+    if(document.getElementById('rsi').checked) datasets.push({label:"RSI",data:calculateRSI(fullPrices).slice(-365),borderColor:"#ffaa00",borderWidth:1.8,pointRadius:0,fill:false,tension:0.3,yAxisID:'y2'});
+
+    if(document.getElementById('volume').checked) datasets.push({
+        label:"成交量",
+        data:volumes.slice(-365),
+        type:'bar',
+        backgroundColor:'rgba(0,200,0,0.3)',
+        yAxisID:'y3'
+    });
+
+    const ctx=document.getElementById("chart").getContext("2d");
+    if(chartInstance) chartInstance.destroy();
+    chartInstance=new Chart(ctx,{
+        type:'line',
+        data:{labels:labels,datasets:datasets},
+        options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            interaction:{mode:'index', intersect:false},
+            plugins:{ tooltip:{ callbacks:{ label:function(context){
+                let val = context.raw;
+                if(val!==null && val!==undefined) val=parseFloat(val).toFixed(2);
+                return context.dataset.label+': '+val;
+            }}}},
+            scales:{
+                y1:{ position:'left', title:{display:true,text:'價格'}, beginAtZero:false },
+                y2:{ position:'right', title:{display:true,text:'RSI'}, beginAtZero:true, max:100, grid:{drawOnChartArea:false}, display:document.getElementById('rsi').checked },
+                y3:{ position:'right', title:{display:true,text:'成交量'}, beginAtZero:true, grid:{drawOnChartArea:false}, display:document.getElementById('volume').checked },
+                x:{ ticks:{ autoSkip:true, maxTicksLimit:25, minRotation:45,maxRotation:45} }
+            },
+            elements:{ point:{ radius:0 } },
+            animation:{ duration:500 }
         }
     });
 }
 </script>
-
 </body>
 </html>
