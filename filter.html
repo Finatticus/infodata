@@ -1,0 +1,362 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+<meta charset="UTF-8">
+<title>FCN 報價管理系統</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+    body {
+        font-family: "Segoe UI", Helvetica, Arial;
+        background: #f6f8fa;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #2a4d69;
+        font-weight: 600;
+    }
+
+    .upload-box, .filter-box {
+        background: white;
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+    }
+
+    .filter-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 10px;
+    }
+
+    .right-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .upload-box {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    input[type="file"] {
+        border: none;
+        background: none;
+        font-size: 15px;
+    }
+
+    button {
+        padding: 6px 20px;
+        background: #2a4d69;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        transition: 0.2s;
+    }
+
+    button.red {
+        background: #b02a37;
+    }
+
+    button:hover {
+        opacity: 0.9;
+    }
+
+    .filter-box input {
+        width: 150px;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    th {
+        background: #dbe4ee;
+        padding: 12px;
+        cursor: pointer;
+        text-align: center;
+        font-weight: 600;
+    }
+
+    td {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+    }
+
+    tr:hover {
+        background: #f0f4f8;
+    }
+
+    .highlight {
+        color: red;
+        font-weight: bold;
+    }
+
+.section-wrapper {
+    position: relative; 
+}
+
+.back-btn {
+    position: absolute;
+    left: 20px;  
+    top: 0px;   
+
+    background: #ffffff;
+    color: #004c91;
+    border: 2px solid #1f72c6;
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: #e6f0ff;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="section-wrapper">
+<button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
+
+<h2>FCN 報價統整</h2>
+
+<div class="upload-box">
+    <input type="file" id="excelFile">
+    <button id="uploadBtn">上傳 Excel</button> </div>
+
+<div class="filter-box">
+    <strong>篩選連結股票：</strong><br>
+    （最多五檔，完全相符，例如：NVDA, TSLA）<br><br>
+
+    <input id="stock1" placeholder="股票 1">
+    <input id="stock2" placeholder="股票 2">
+    <input id="stock3" placeholder="股票 3">
+    <input id="stock4" placeholder="股票 4">
+    <input id="stock5" placeholder="股票 5">
+
+    <div class="filter-buttons">
+        <button onclick="applyStockFilter()">套用篩選</button>
+
+        <div class="right-buttons">
+            <button class="red" onclick="clearAll()">清除全部資料</button>
+            <button class="red" onclick="deleteSelected()">刪除選取資料</button>
+        </div>
+    </div>
+</div>
+
+<table id="dataTable">
+    <thead>
+        <tr id="tableHeader">
+            <th>選取</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script>
+let allRows = [];
+let filteredRows = [];
+let lastSort = { col: null, asc: true };
+
+const percentCols = ["Best", "Strike", "KI", "KO Start", "UF"]; const stockCols = ["U1","U2","U3","U4","U5"];
+
+window.onload = function () {
+    const saved = localStorage.getItem("fcnData");
+    if (saved) {
+        allRows = JSON.parse(saved);
+        filteredRows = [...allRows];
+        renderTable(filteredRows);
+    }
+};
+
+document.getElementById("uploadBtn").addEventListener("click", function () {
+    const fileInput = document.getElementById("excelFile");
+    if (!fileInput.files.length) return alert("請選擇 Excel 檔案");
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        let rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+
+        rows = rows.map(row => {
+            if (row.Date)
+                row.Date = XLSX.SSF.format("yyyy-mm-dd", row.Date);
+
+            percentCols.forEach(c => {
+                if (row[c] !== "" && !isNaN(row[c])) {
+                    row[c] = (row[c] * 100).toFixed(2) + "%";
+                }
+            });
+
+            if (row["Coupon Period"] == 1) row["Coupon Period"] = "Monthly";
+
+            return row;
+        });
+
+        allRows = allRows.concat(rows);
+        filteredRows = [...allRows];
+        localStorage.setItem("fcnData", JSON.stringify(allRows));
+
+        renderTable(filteredRows);
+    };
+
+    reader.readAsArrayBuffer(file);
+});
+
+/* 清除全部 */
+function clearAll() {
+    if (!confirm("確定清除所有資料？")) return;
+
+    allRows = [];
+    filteredRows = [];
+    localStorage.removeItem("fcnData");
+    renderTable([]);
+}
+
+/* 刪除選取資料 + 新增 confirm */
+function deleteSelected() {
+    const checks = document.querySelectorAll(".rowCheck:checked");
+
+    if (checks.length === 0) {
+        alert("請先勾選要刪除的資料");
+        return;
+    }
+
+    if (!confirm(`確定要刪除 ${checks.length} 筆選取資料？`)) return;
+
+    const deleteIds = [...checks].map(x => Number(x.dataset.id));
+
+    allRows = allRows.filter((row, idx) => !deleteIds.includes(idx));
+    filteredRows = [...allRows];
+
+    localStorage.setItem("fcnData", JSON.stringify(allRows));
+    renderTable(filteredRows);
+}
+
+/* 套用股票篩選 */
+function applyStockFilter() {
+    const inputs = [
+        stock1.value.trim(),
+        stock2.value.trim(),
+        stock3.value.trim(),
+        stock4.value.trim(),
+        stock5.value.trim()
+    ].filter(x => x);
+
+    if (inputs.length === 0) {
+        filteredRows = [...allRows];
+        return renderTable(filteredRows);
+    }
+
+    filteredRows = allRows.filter(row =>
+        inputs.every(stk =>
+            stockCols.some(col => row[col] === stk)
+        )
+    );
+
+    renderTable(filteredRows);
+}
+
+/* 排序 */
+function sortBy(col) {
+    if (lastSort.col === col) {
+        lastSort.asc = !lastSort.asc;
+    } else {
+        lastSort = { col, asc: true };
+    }
+
+    filteredRows.sort((a, b) => {
+        let x = a[col], y = b[col];
+
+        if (typeof x === "string" && x.endsWith("%")) x = parseFloat(x);
+        if (typeof y === "string" && y.endsWith("%")) y = parseFloat(y);
+
+        return lastSort.asc ? (x > y ? 1 : -1) : (x < y ? 1 : -1);
+    });
+
+    renderTable(filteredRows);
+}
+
+/* 畫表格 */
+function renderTable(rows) {
+    const tbody = document.querySelector("tbody");
+    tbody.innerHTML = "";
+
+    if (rows.length === 0) return;
+
+    const header = Object.keys(rows[0]);
+    const thead = document.getElementById("tableHeader");
+
+    thead.innerHTML = "<th>選取</th>";
+    header.forEach(col => {
+        const th = document.createElement("th");
+        th.textContent = col;
+        th.onclick = () => sortBy(col);
+        thead.appendChild(th);
+    });
+
+    rows.forEach((row, idx) => {
+        const tr = document.createElement("tr");
+
+        const chk = document.createElement("td");
+        chk.innerHTML = `<input type="checkbox" class="rowCheck" data-id="${idx}">`;
+        tr.appendChild(chk);
+
+        header.forEach(col => {
+            const td = document.createElement("td");
+            td.textContent = row[col];
+
+            const searchList = [
+                stock1.value.trim(),
+                stock2.value.trim(),
+                stock3.value.trim(),
+                stock4.value.trim(),
+                stock5.value.trim()
+            ].filter(x => x);
+
+            if (stockCols.includes(col) && searchList.includes(row[col])) {
+                td.classList.add("highlight");
+            }
+
+            tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+    });
+}
+</script>
+
+</body>
+</html>

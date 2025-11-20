@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-    <title>Fixed Coupon Note (FCN)</title>
+    <title>Steepener</title>
 
     <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -311,15 +311,15 @@ table tr:hover td {
 
 
 <div class="container">
-<h2>🔹 Fixed Coupon Note (FCN)</h2>
-<p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破履約價格，投資人可能損失部分或全部本金。</p>
+<h2>🔹 Steepener</h2>
+<p>Steepener是連結利差型保本結構，觀察2個擔保隔夜融資固定期間交換利率(SOFR CMS)之間的利差，作為收益的計算基準，並可以設有最低及最高收益條件。利差越大期收益會越高，適合較為保守的投資人選擇。</p>
 
 
 <h3>🚩 產品特色</h3>
 <div class="features">
-<div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">將股票的不確定收益<br>轉變成固定收益</div></div>
-<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">可提前自動出場<br>降低投資風險</div></div>
-<div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">對本金保護較個股深</div></div>
+<div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">利差越大，投資人收益越大</div></div>
+<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">可以設定最低收益</div></div>
+<div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">連結利差的100%保本結構型商品架構</div></div>
 </div>
 
 <div class="divider"></div>
@@ -328,42 +328,40 @@ table tr:hover td {
 <h3>📘 範例商品條件</h3>
 <table>
 <tr><th>計價幣別</th><td>美元</td></tr>
-<tr><th>連結標的</th><td>NVDA、TSM</td></tr>
-<tr><th>天期</th><td>6個月</td></tr>
-<tr><th>履約價格 (Strike)</th><td>期初價格 × 75%</td></tr>
-<tr><th>下限價格 (Knock-in)</th><td>期初價格 × 60%</td></tr>
-<tr><th>下限價格觀察頻率 (AKI)</th><td>每個工作日觀察一次 (Daily)</td></tr>
-<tr><th>提前出場價格 (KO)</th><td>期初價格 × 100%</td></tr>
-<tr><th>提前出場價格觀察頻率</th><td>每個工作日觀察一次 (Daily)</td></tr>
-<tr><th>KO是否記憶</th><td>Yes</td></tr>
-<tr><th>配息率</th><td>15% <span class="tooltip">(p.a.)<span class="tooltiptext">年化報酬率，固定配息計算方式</span></span></td></tr>
+<tr><th>連結標的</th><td>美元30年期擔保隔夜融資固定期限交換利率 (USD SOFR CMS 30Y) -<br>美元5年期擔保隔夜融資固定期限交換利率 (USD SOFR CMS 5Y)</td></tr>
+<tr><th>天期</th><td>5年</td></tr>
+<tr><th>配息頻率</th><td>每季配息</td></tr>
+<tr><th>固定配息區間</th><td>1年</td></tr>
+<tr><th>固定配息區間配息率</th><td>10%<span class="tooltip">(p.a.)<span class="tooltiptext">年化報酬率，固定配息計算方式</span></span></td></tr>
+<tr><th>浮動配息期間計息方式</th><td>連結標的30Y-5Y利差 x 6倍</td></tr>
+<tr><th>浮動配息計算方式</th><td>分為兩種:<br>1) In-Advance 採各配息期首日往前第5個美國政府證券營業日定價計算當期配息率<br>2) In-Arrears 採各配息期結束日往前第5個美國政府證券營業日定價計算當期配息</td></tr>
+<tr><th>最高收益 (Cap)</th><td>6.00%</td></tr>
+<tr><th>最低收益 (Floor)</th><td>2.00%</td></tr>
+<tr><th>發行機構提前買回權</th><td>保證領息期間1年後，每季配息日有買回權</td></tr>
 </table>
 
 
 <div class="product-info">
 
   <div class="info-line">
-    <strong>💵 固定配息：</strong> 持有期間不論股價漲跌，每月固定領 15% 年息。
+    <strong>💵 第1年固定配息：</strong> 第一年固定配息10%，不用觀察SOFR CMS 30Y - 5Y利差
   </div>
 
   <div class="info-line">
-    <strong>⚖️ 履約價 (Strike)：</strong> 最差情況需用此價格承接表現最差的連結股票。
+    <strong>⚖️ 第2年起：</strong> <br>觀察SOFR CMS 30Y - 5Y利差，以利差乘上6倍作為每季配息基準，每季只判斷一天(In-Advance/In-Arrears)<br>第2年起如果利差為倒掛或是計算後收益小於2% (Floor)，至少也可以拿到2%的利息；如果利差擴大，最大收益(Cap)為6%
   </div>
 
-  <div class="info-line">
-    <strong>⬇️ 下限價 (Knock-In)：</strong> 觀察期間從沒有任一個連結股票觸及下限價，即使到期時股票價格低於履約價格，也不用實物履約。
-  </div>
 
   <div class="info-line">
-    <strong>⏹️ 自動提前出場 (Knock-Out)：</strong> 所有連結標的均曾超過此價時，商品提前結束，投資人領回本金及應計利息。
+    <strong>⏹️ 上手買回權：</strong> 保證領息期間(1年)過後，每個配息日上手皆有強制買回權。
   </div>
 
   <div class="info-line attention">
     <strong>⚠️ 注意事項：</strong>
     <ul>
-      <li>自動提前出場與期末評價日為獨立事件，若無發生 KO 事件，期末仍以表現最差連結標的計算。</li>
-      <li>若發生 KO 提前出場，依產品說明書中固定配息率計算應計利息。</li>
-      <li>期末評價日若連結標的表現不佳，將以履約價格接收表現最差標的股票。</li>
+      <li>浮動配息於每季約定好的觀察日(In-Advance/In-Arrears)之美國政府證券營業日紐約時間約上午11時00分，由洲際交易所定價基準管理機構（ICE Benchmark Administration Limited）(「定價基準管理機構」)所公佈的利率為主</li>
+      <li>上手買回決定權在於發行機構</li>
+      <li>投資人進行提前贖回，仍有可能損失到本金</li>
     </ul>
   </div>
 
@@ -410,16 +408,16 @@ table tr:hover td {
 <div class="scenario-cards">
 
 <div class="scenario scenarioA" onclick="showScenarioChart('A')">
-<div class="scenario-title">A情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格大於等於(>=)履約價格(Strike)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="scenario-title">A情境</div><div class="scenario-desc">SOFR CMS 30Y-5Y利差x6倍，在保證領息期間過後皆大於6%(Cap)</div><div class="scenario-desc">第一年每季收到10%年化配息率，第二年起每季收到6%年化配息率</div></div>
 
 <div class="scenario scenarioB" onclick="showScenarioChart('B')">
-<div class="scenario-title">B情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，但是從來沒有觸及下限價(KI)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="scenario-title">B情境</div><div class="scenario-desc">SOFR CMS 30Y-5Y利差x6倍，在保證領息期間過後在0%到6%區間不等(Cap)</div><div class="scenario-desc">第一年每季收到10%年化配息率，第二年起每季收到<span style="color:red;">應計</span>年化配息率，最小為2% (Floor)</div></div>
 
 <div class="scenario scenarioC" onclick="showScenarioChart('C')">
-<div class="scenario-title">C情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，而且曾經觸及過下限價(KI)</div><div class="scenario-desc">投資人於到期日，以履約價格轉換成表現最差連結股票 + 應計配息</div></div>
+<div class="scenario-title">C情境</div><div class="scenario-desc">SOFR CMS 30Y-5Y利差x6倍，在保證領息期間過後皆為倒掛(小於0%)</div><div class="scenario-desc">第一年每季收到10%年化配息率，第二年起僅收到最小收益2%</div></div>
 
 <div class="scenario scenarioD" onclick="showScenarioChart('D')">
-<div class="scenario-title">D情境</div><div class="scenario-desc">在保證領息期間過後，連結的所有股票均漲過提前出場價格(KO)</div><div class="scenario-desc">投資人領回: 100%本金 + 應計配息</div></div>
+<div class="scenario-title">D情境</div><div class="scenario-desc">在保證領息期間過後，上手第四年執行買回權</div><div class="scenario-desc">第一年每季收到10%年化配息率，買回後收到100%本金 + 應計利息</div></div>
 </div>
 
 
@@ -449,16 +447,13 @@ table tr:hover td {
 <div class="faq-features">
     <div class="feature-item" onclick="openFAQ('faq1', event)">
         <div class="feature-circle faq1-circle">Q1</div>
-        <div class="feature-text">
-            到期接股票怎麼計算？<br>
-            (連結股票和商品計價 <span style="font-weight:bold; color:#c00;">幣別相同</span>)
+        <div class="feature-text">什麼是美國有擔保隔夜融資利率(SOFR)？
         </div>
     </div>
     <div class="feature-item" onclick="openFAQ('faq2', event)">
         <div class="feature-circle faq2-circle">Q2</div>
         <div class="feature-text">
-            到期接股票怎麼計算？<br>
-            (連結股票和商品計價 <span style="font-weight:bold; color:#c00;">幣別不同</span>)
+            什麼是CMS (Constant Maturity Swap)？
         </div>
     </div>
     <div class="feature-item" onclick="openFAQ('faq3', event)">
@@ -467,15 +462,7 @@ table tr:hover td {
     </div>
     <div class="feature-item" onclick="openFAQ('faq4', event)">
         <div class="feature-circle faq4-circle">Q4</div>
-        <div class="feature-text">連結股票若發生合併、併購、國有化、破產或下市怎麼辦？</div>
-    </div>
-    <div class="feature-item" onclick="openFAQ('faq5', event)">
-        <div class="feature-circle faq5-circle">Q5</div>
-        <div class="feature-text">連結股票若發生股票分割（Stock Split）怎麼處理？</div>
-    </div>
-    <div class="feature-item" onclick="openFAQ('faq6', event)">
-        <div class="feature-circle faq6-circle">Q6</div>
-        <div class="feature-text">境外結構型商品的接股成本如何認列？</div>
+        <div class="feature-text">境外結構型商品的成本如何認列？</div>
     </div>
 </div>
 
@@ -494,50 +481,42 @@ const faqData = {
 
 faq1: `
 <div style="
-    border-left:none;  /*6px solid #4A90E2;*/
+    border-left:none;
     padding:18px 20px;
     margin:10px 0 20px 0;
 ">
 
     <div style="display:flex; align-items:center; margin-bottom:10px;">
-
         <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q1｜到期接股票怎麼計算的？(同幣別)
+            Q1｜什麼是 SOFR？
         </h2>
     </div>
 
     <p style="font-size:15px; line-height:1.7;">
-        當 FCN 在到期出現 <b style="color:#c00;">C 情境（觸及 KI 且期末低於 Strike）</b>，就會進入
-        <b style="font-weight:700; color:#c00;">實物履約（接股票）</b>。
+        <b style="color:#4A90E2;">SOFR（Secured Overnight Financing Rate）= 美國有擔保隔夜融資利率</b>，
+        是目前全球金融市場最重要的<b style="color:#c00;">美元基準利率</b>，是一個由美國聯邦儲備系統所提供的利率指標，用於衡量金融機構之間的隔夜融資成本，也被廣泛用在結構型商品、浮動利率債券、衍生性商品等。
     </p>
 
-    <h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 實物履約基本資訊</h3>
+    <h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 SOFR 的概念</h3>
 
     <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:15px;">
         <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">承接股票</th>
-            <td style="padding:10px; background:#fafafa;">NVDA</td>
+            <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">發布機構</th>
+            <td style="padding:10px; background:#fafafa;">紐約聯邦準備銀行（New York Fed）</td>
         </tr>
         <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">幣別</th>
-            <td style="padding:10px; background:#fafafa;">USD</td>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">是否有抵押品</th>
+            <td style="padding:10px; background:#fafafa;">✔ 有，以美國公債做抵押</td>
         </tr>
         <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">匯率</th>
-            <td style="padding:10px; background:#fafafa;">1.00</td>
-        </tr>
-        <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">履約股票價格</th>
-            <td style="padding:10px; background:#fafafa;">USD 150</td>
-        </tr>
-        <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">最後評價日收盤價</th>
-            <td style="padding:10px; background:#fafafa;">USD 100</td>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">波動性</th>
+            <td style="padding:10px; background:#fafafa;">低於 LIBOR，較接近 Fed 利率走勢</td>
         </tr>
     </table>
 
     <p style="font-size:15px; line-height:1.7;">
-        假設 FCN 為美元計價，每單位名目本金為 <b>10,000 美元</b>。
+        因為 SOFR 以美國國債為抵押、風險極低，被視為<b style="color:#4A90E2;">最乾淨、最透明的美元利率</b>，
+        也是各類金融商品最普遍的參考利率。
     </p>
 
     <div style="
@@ -547,26 +526,19 @@ faq1: `
         border:1px solid #ffe8a1;
         margin:18px 0;
     ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 每單位可承接股數</h3>
-        10,000 ÷ 150 = <b style="font-size:18px;">66.6667 股</b><br>
-        ✔ 最終可承接 <b style="color:#d35400;">66 股 NVDA</b>  
-        ✔ 小數部分須換成現金償付
+        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 SOFR 如何計算？</h3>
+        SOFR係採用來自三大來源的大量多元數據，這些數據完全以交易為基礎：<br><br>
+
+        ✔ 由紐約梅隆銀行（BNYM）清算和結算的三方美國國債回購交易，不包括一般抵押品融資（GCF）回購交易，也不包括以美國聯儲局為交易對手的交易。<br>
+        ✔ 透過「美國存託和清算公司」（Depository Trust & Clearing Corporation，DTCC）一般抵押品融資服務進行的美國國債回購交易，並以「固定收益清算公司」（Fixed Income Clearing Corporation，FICC）作為中央交易對手。<br>
+        ✔ 透過固定收益清算公司的款券同步交割（DVP）服務清算的雙邊美國國債回購交易。<br><br>
+
+        由於以美國國債作抵押，因此<b style="color:#d35400;">信用風險極低</b>，是非常穩定可靠的利率。
     </div>
 
-    <div style="
-        background:#e8f8f5;
-        padding:15px;
-        border-radius:8px;
-        border:1px solid #d1f2eb;
-        margin:18px 0;
-    ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#117a65;">📌 殘餘股數換成現金</h3>
-        0.6667 × 100 = <b style="color:#117a65; font-size:17px;">66.67 USD</b><br>
-        ✔ 以最後評價日收盤價計算  
-        ✔ 現金金額取小數兩位
-    </div>
 
 </div>
+
 `,
 
 
@@ -578,46 +550,44 @@ faq2: `
     margin:10px 0 20px 0;
 ">
 
-    <div style="display:flex; align-items:center; margin-bottom:10px;">
+<div style="
+    border-left:none;
+    padding:18px 20px;
+    margin:10px 0 20px 0;
+">
 
+    <div style="display:flex; align-items:center; margin-bottom:10px;">
         <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q2｜到期接股票怎麼計算的？(不同幣別)
+            Q2｜什麼是 CMS（Constant Maturity Swap）？
         </h2>
     </div>
 
     <p style="font-size:15px; line-height:1.7;">
-        當 FCN 在到期出現 <b style="color:#c00;">C 情境（觸及 KI 且期末低於 Strike）</b>，就會進入
-        <b style="font-weight:700; color:#c00;">實物履約（接股票）</b>。
+        <b style="color:#4A90E2;">CMS（Constant Maturity Swap）= 固定期限利率互換利率</b>，
+        是一種「<b style="color:#c00;">特定期限的利率交換</b>」所形成的市場利率，也完全反映市場對未來N期的預期 SOFR 折現後的固定利率，例如：
+        <b>1 年期 CMS</b>、<b>2 年期 CMS</b>、<b>5 年期 CMS</b>、<b>10 年期 CMS</b>、<b>30 年期 CMS</b>。
     </p>
 
-<h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 實物履約基本資訊</h3>
+    <h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 CMS 的概念</h3>
 
-<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:15px;">
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">承接股票</th>
-        <td style="padding:10px; background:#fafafa;">NVDA</td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">幣別</th>
-        <td style="padding:10px; background:#fafafa;"><span style="font-weight:bold; color:#c00;">JPY</span></td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">匯率</th>
-        <td style="padding:10px; background:#fafafa;"><span style="font-weight:bold; color:#c00;">160</span></td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">履約股票價格</th>
-        <td style="padding:10px; background:#fafafa;">USD 150</td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">最後評價日收盤價</th>
-        <td style="padding:10px; background:#fafafa;">USD 100</td>
-    </tr>
-</table>
-
-    <p style="font-size:15px; line-height:1.7;">
-        假設 FCN 為日幣計價，每單位名目本金為 <b>1,000,000 日幣</b>。
-    </p>
+    <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:15px;">
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">CMS 是什麼？</th>
+            <td style="padding:10px; background:#fafafa;">市場上「固定利率 vs 浮動利率互換」所形成的固定利率</td>
+        </tr>
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">浮動利率來源</th>
+            <td style="padding:10px; background:#fafafa;">以 SOFR 為基礎的短期利率</td>
+        </tr>
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">固定利率的期限</th>
+            <td style="padding:10px; background:#fafafa;">1Y / 2Y / 5Y / 10Y…（商品最常用）</td>
+        </tr>
+        <tr>
+            <th style="padding:10px; background:#e9f2ff; text-align:left;">本質是什麼？</th>
+            <td style="padding:10px; background:#fafafa;">市場對「未來利率」的預期</td>
+        </tr>
+    </table>
 
     <div style="
         background:#fff3cd;
@@ -626,29 +596,20 @@ faq2: `
         border:1px solid #ffe8a1;
         margin:18px 0;
     ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 每單位可承接股數</h3>
-        1,000,000 ÷ 匯率160(先換算成美元) ÷ 150 = <b style="font-size:18px;">41.6667 股</b><br>
-        ✔ 最終可承接 <b style="color:#d35400;">41 股 NVDA</b>  
-        ✔ 小數部分須換成現金償付
-    </div>
+        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 為什麼結構型商品不直接連結 SOFR？</h3>
 
-    <div style="
-        background:#e8f8f5;
-        padding:15px;
-        border-radius:8px;
-        border:1px solid #d1f2eb;
-        margin:18px 0;
-    ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#117a65;">📌 殘餘股數換成現金</h3>
-        0.6667 × 100 = <b style="color:#117a65; font-size:17px;">66.67 USD</b><br>66.67 USD再以匯率160換回JPY 10,667，返還投資人<br>
-        ✔ 以最後評價日收盤價計算  
-        ✔ 日幣金額取至整數位
+        可能原因是<b style="color:#d35400;">SOFR 是隔夜利率</b>：<br><br>
+
+        ✔ 波動小，不易設計出有吸引力的報酬<br>
+        ✔ 連結SOFR CMS的商品，在天期上能有更多選擇<br>
+        ✔ OTC市場沒辦法直接避險，發行機構較不偏好<br><br>
+
+        因此，金融市場比較少使用「隔夜 SOFR」當作連結標的。
     </div>
 
 </div>
+
 `,
-
-
 
 
 
@@ -705,63 +666,8 @@ faq2: `
 `,
 
 
+
     faq4: `
-<div style="
-    border-left:none;
-    padding:18px 20px;
-    margin:10px 0 20px 0;
-">
-
-    <div style="display:flex; align-items:center; margin-bottom:10px;">
-        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q4｜連結股票若發生合併、併購、國有化、破產或下市？
-        </h2>
-    </div>
-
-    <p style="font-size:15px; line-height:1.7;">
-        若連結股票發生重大事件（如合併、併購、國有化、破產或下市），發行機構會依專業判斷，
-        決定商品是否能繼續存續，或是否需調整條款、提前贖回。
-    </p>
-
-    <h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 可能的處理方式</h3>
-
-    <p style="font-size:15px; line-height:1.7;">
-        <b>① 商品是否能繼續存續</b><br>
-        發行機構會先評估事件影響，決定商品是否能維持正常運作。
-    </p>
-
-    <p style="font-size:15px; line-height:1.7;">
-        <b>② 若能繼續存續 → 可能採取的調整方式：</b><br>
-        • 更換「繼任股票」以取代原股票（若於事件後 10 個營業日內無法指定，則採條款調整方式）<br>
-        • 調整商品相關要素，例如：到期金額公式、交割方式、利息計算、預期股息、借券成本、波動度或流動性等因素
-    </p>
-
-    <p style="font-size:15px; line-height:1.7;">
-        <b>③ 若商品無法繼續存續 → 提前贖回</b><br>
-        • 會至少提前 5 個營業日通知投資人<br>
-        • 給付商品的「提前了結款項」全額
-    </p>
-
-    <div style="
-        margin-top:20px;
-        padding:12px 15px;
-        background:#f3f8ff;
-        border-radius:8px;
-        font-size:15px;
-        line-height:1.7;
-        color:#0d47a1;
-    ">
-        <b>📌 重點小結：</b><br>
-        股票若發生重大變動 → 可能改股票、改條款或提前贖回，目的在確保商品價值合理與市場實際狀況一致。
-    </div>
-
-</div>
-
-
-
-
-`,
-    faq5: `
 
 <div style="
     border-left:none;
@@ -771,69 +677,7 @@ faq2: `
 
     <div style="display:flex; align-items:center; margin-bottom:10px;">
         <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q5｜連結股票發生股票分割（Stock Split）時怎麼調整？
-        </h2>
-    </div>
-
-    <p style="font-size:15px; line-height:1.7;">
-        股票分割時，結構型商品的價格門檻會依相同比例自動調整，
-        以反映股票面額變化，不影響投資人權益。
-    </p>
-
-    <!-- 一般案例 -->
-    <h3 style="margin:18px 0 6px 0; font-size:18px; color:#4A90E2;">
-        📌 一般案例：如 GOOG 1：20 股票分割
-    </h3>
-
-    <p style="font-size:15px; line-height:1.7;">
-        以 <b>GOOG（2022/7/18）1：20</b> 股票分割為例：  
-        商品的 <b>期初價、KO、Strike、KI</b> 都會「全部除以 20」。  
-        <br><b style="color:#0d47a1;">分割後商品照常運作，不會影響投資人權益。</b>
-    </p>
-
-    <!-- 特殊案例 -->
-    <h3 style="margin:22px 0 6px 0; font-size:18px; color:#4A90E2;">
-        📌 特殊情況：如 AMC 配發特別股
-    </h3>
-
-    <p style="font-size:15px; line-height:1.7;">
-        AMC 在 2022/8/22 發放特別股「APE」，此事件不屬於單純分割，
-        因此無法依比例自動調整。
-        <br><br>
-        <b>由發行機構依專業判斷計算調整因子</b>，以維持商品運作的合理性。
-    </p>
-
-    <div style="
-        margin-top:20px;
-        padding:12px 15px;
-        background:#f3f8ff;
-        border-radius:8px;
-        font-size:15px;
-        line-height:1.7;
-        color:#0d47a1;
-    ">
-        <b>📌 小結：</b><br>
-        • 一般分割 → 價格自動依比例調整，權益不變。<br>
-        • 特殊事件（如 AMC）→ 需由發行機構計算調整因子。
-    </div>
-
-</div>
-
-
-`,
-
-
-    faq6: `
-
-<div style="
-    border-left:none;
-    padding:18px 20px;
-    margin:10px 0 20px 0;
-">
-
-    <div style="display:flex; align-items:center; margin-bottom:10px;">
-        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q6｜境外結構型商品的接股成本如何認列？
+            Q4｜境外結構型商品的成本如何認列？
         </h2>
     </div>
 
@@ -870,7 +714,7 @@ faq2: `
 
     <p style="font-size:15px; line-height:1.7;">
         <b>不能。</b>  
-        FCN 利息屬於「海外利息所得」，與上述「財產交易所得」屬於不同類別，稅務上不得互相抵減。
+        利息屬於「海外利息所得」，與上述「財產交易所得」屬於不同類別，稅務上不得互相抵減。
     </p>
 
     <div style="
@@ -967,10 +811,10 @@ const koLine = 100;
 // -----------------------------
 // 生成資料
 // -----------------------------
-const dataA = [100, 95, 80, 55, 68, 55, 80];
-const dataB = [100, 85, 75, 65, 72, 80, 65];
-const dataC = [100, 90, 80, 85, 70, 50, 65];
-const dataD = [100, 90, 95, 85, 105, null, null];
+const dataA = [8, 7.2, 7.8, 7.5, 7.8, 6.8];
+const dataB = [4, 2.4, 3.2, 1.8, 1.2, 2.8];
+const dataC = [0.5, -0.5, -1.2, -0.7, -1.5, -1];
+const dataD = [4, 5.5, 4.8, 6.2];
 
 
 
@@ -983,26 +827,26 @@ let scenarioChart = null;
 
 function showScenarioChart(type){
     if(scenarioChart) scenarioChart.destroy();
-    const months = ['期初','1月','2月','3月','4月','5月','6月'];
+    const months = ['期初','1年','2年','3年','4年','5年'];
     let selectedData;
     let cashFlowData;
 
     switch(type){
         case 'A': 
             selectedData = dataA; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            cashFlowData = ['10%','6%','6%','6%','6%','本金+6%']; 
             break;
         case 'B': 
             selectedData = dataB; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','固定配息','固定配息','本金+配息']; 
+            cashFlowData = ['10%','應計利息','應計利息','應計利息','應計利息','本金+應計利息']; 
             break;
         case 'C': 
             selectedData = dataC; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','固定配息','固定配息','股票+配息']; 
+            cashFlowData = ['10%','2%','2%','2%','2%','本金+2%']; 
             break;
         case 'D': 
             selectedData = dataD; 
-            cashFlowData = ['','固定配息','固定配息','固定配息','本金+配息']; 
+            cashFlowData = ['10%','應計利息','應計利息','本金+應計利息']; 
             break;
         default: return;
     }
@@ -1029,14 +873,13 @@ function showScenarioChart(type){
             labels: months,
             datasets:[
                 { label: '股價', data: selectedData, borderColor:'#0077cc', borderWidth:5, fill:false, tension:0.5 },
-                { label: '100% KO', data:Array(7).fill(100), borderColor:'#ff0000', borderWidth:2, borderDash:[10,5], fill:false },
-                { label: '75% Strike', data:Array(7).fill(75), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false },
-                { label: '60% KI', data:Array(7).fill(60), borderColor:'#ff8800', borderWidth:2, borderDash:[10,5], fill:false }
+                { label: '6% 最高收益(Cap)', data:Array(6).fill(6), borderColor:'#ff0000', borderWidth:2, borderDash:[10,5], fill:false },
+                { label: '2% 最低受益(Floor)', data:Array(6).fill(2), borderColor:'#00aa00', borderWidth:2, borderDash:[10,5], fill:false }
             ]
         },
         options:{
             responsive:true,
-            scales:{ y:{ min:40,max:140, title:{ display:true, text:'股價', font:{size:20} } }, x:{ ticks:{ font:{ size:15 } } } },
+            scales:{ y:{ min:-2,max:10, title:{ display:true, text:'利差 (％)', font:{size:20} } }, x:{ ticks:{ font:{ size:15 } } } },
             plugins:{ legend:{ labels:{ font:{ size:18 } } }, scenarioLabel:{ label:type+' 情境' } }
         },
         plugins:[scenarioLabelPlugin]
@@ -1054,8 +897,8 @@ function showScenarioChart(type){
         const div = document.createElement('div');
         div.style.position = 'absolute';
         div.style.bottom = '0';
-        div.style.left = (xScale.getPixelForTick(i) - 40/2 -15) + 'px'; // 偏移半寬
-        div.style.width = '80px';
+        div.style.left = (xScale.getPixelForTick(i) - 40/2 -30) + 'px'; // 偏移半寬
+        div.style.width = '110px';
         div.style.height = '40px';
         div.style.backgroundColor = '#f9fafc';
         div.style.border = '1px solid #d1d5db';

@@ -72,6 +72,30 @@ button:hover {
   display: block;
   text-align: center;
 }
+
+.section-wrapper {
+    position: relative; 
+}
+
+.back-btn {
+    position: absolute;
+    left: 20px;  
+    top: 0px;   
+
+    background: #ffffff;
+    color: #004c91;
+    border: 2px solid #1f72c6;
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: #e6f0ff;
+}
+
 #exportBtn {
   background-color: #28a745;
 }
@@ -81,7 +105,8 @@ button:hover {
 </style>
 </head>
 <body>
-<button class="back-btn" onclick="window.location.href='index.html'">← 返回主頁</button>
+<div class="section-wrapper">
+<button class="back-btn" onclick="window.location.href='index.html'">←返回主頁</button>
 <div class="container">
 <h1>歷史波動率計算</h1>
 

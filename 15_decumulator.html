@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8">
-    <title>Fixed Coupon Note (FCN)</title>
+    <title>Decumulator Note</title>
 
     <!-- 引入 Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -311,15 +311,15 @@ table tr:hover td {
 
 
 <div class="container">
-<h2>🔹 Fixed Coupon Note (FCN)</h2>
-<p>Fixed Coupon Note (FCN) 是一種固定配息的結構型商品，提供投資人比傳統定存更高的固定利息，並以連結標的（如個股或ETF）的表現作為條件。特色在於定期支付利息，但不保本，若連結標的價格在到期時跌破履約價格，投資人可能損失部分或全部本金。</p>
+<h2>🔹 Decumulator Note</h2>
+<p>Decumulator Note為逐期用約定好<span style="color:red";>高於</span>市價的價格去賣出股票的結構型商品，可以在波動市場中提高平均賣出價格。適合希望分批賣出手上庫存標的，設定一個較高的價格且不想要一次性賣出的投資人。</p>
 
 
 <h3>🚩 產品特色</h3>
 <div class="features">
-<div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">將股票的不確定收益<br>轉變成固定收益</div></div>
-<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">可提前自動出場<br>降低投資風險</div></div>
-<div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">對本金保護較個股深</div></div>
+<div class="feature-item"><div class="feature-circle feature1">💰</div><div class="feature-text">條件式分批賣出，有效提高賣出價格</div></div>
+<div class="feature-item"><div class="feature-circle feature2">🕒</div><div class="feature-text">在震盪市場中展現優勢</div></div>
+<div class="feature-item"><div class="feature-circle feature3">🛡️</div><div class="feature-text">看空市場時能穩健出售部位</div></div>
 </div>
 
 <div class="divider"></div>
@@ -328,42 +328,41 @@ table tr:hover td {
 <h3>📘 範例商品條件</h3>
 <table>
 <tr><th>計價幣別</th><td>美元</td></tr>
-<tr><th>連結標的</th><td>NVDA、TSM</td></tr>
+<tr><th>連結標的</th><td>NVDA</td></tr>
 <tr><th>天期</th><td>6個月</td></tr>
-<tr><th>履約價格 (Strike)</th><td>期初價格 × 75%</td></tr>
-<tr><th>下限價格 (Knock-in)</th><td>期初價格 × 60%</td></tr>
-<tr><th>下限價格觀察頻率 (AKI)</th><td>每個工作日觀察一次 (Daily)</td></tr>
-<tr><th>提前出場價格 (KO)</th><td>期初價格 × 100%</td></tr>
-<tr><th>提前出場價格觀察頻率</th><td>每個工作日觀察一次 (Daily)</td></tr>
-<tr><th>KO是否記憶</th><td>Yes</td></tr>
-<tr><th>配息率</th><td>15% <span class="tooltip">(p.a.)<span class="tooltiptext">年化報酬率，固定配息計算方式</span></span></td></tr>
+<tr><th>履約價格 (Strike)</th><td>期初價格 × 112%</td></tr>
+<tr><th>提前出場價格 (KO)</th><td>期初價格 × 90%</td></tr>
+<tr><th>保證交割股票量</th><td>4週(每天40股)</td></tr>
+<tr><th>每日股數</th><td>40股</td></tr>
+<tr><th>總天數</th><td>127天</td></tr>
+<tr><th>交割頻率</th><td>每兩週交割一次</td></tr>
 </table>
 
 
 <div class="product-info">
 
   <div class="info-line">
-    <strong>💵 固定配息：</strong> 持有期間不論股價漲跌，每月固定領 15% 年息。
+    <strong>💵 分批出售：</strong> 以高於市場價格(112%)每天分批賣出40股。
   </div>
 
   <div class="info-line">
-    <strong>⚖️ 履約價 (Strike)：</strong> 最差情況需用此價格承接表現最差的連結股票。
+    <strong>⚖️ 交割頻率：</strong> 存續期間總共127天，每天賣出40股，每兩周結算一次股票。
   </div>
 
   <div class="info-line">
-    <strong>⬇️ 下限價 (Knock-In)：</strong> 觀察期間從沒有任一個連結股票觸及下限價，即使到期時股票價格低於履約價格，也不用實物履約。
+    <strong>⚐ 期初交割金額：</strong> 期初要交付<span style="color:red";>未來可能發生的交易總價金</span>，共USD 508,000 (127天 x 40股 x 股價USD100)。
   </div>
 
   <div class="info-line">
-    <strong>⏹️ 自動提前出場 (Knock-Out)：</strong> 所有連結標的均曾超過此價時，商品提前結束，投資人領回本金及應計利息。
+    <strong>⏹️ 自動提前出場 (Knock-Out)：</strong> 股價一旦跌破提前出場價格，商品就提前出場，並返還剩餘未賣出的股票；如果四週內提前出場，會保證幫投資人賣出4週的股票量。
   </div>
 
   <div class="info-line attention">
     <strong>⚠️ 注意事項：</strong>
     <ul>
-      <li>自動提前出場與期末評價日為獨立事件，若無發生 KO 事件，期末仍以表現最差連結標的計算。</li>
-      <li>若發生 KO 提前出場，依產品說明書中固定配息率計算應計利息。</li>
-      <li>期末評價日若連結標的表現不佳，將以履約價格接收表現最差標的股票。</li>
+      <li>期初就必須交付預期交割股票的總價金</li>
+      <li>如果提前出場，剩餘的款項都會以期初價格轉換成股票</li>
+      <li>保證期間4週內提前出場，不會等到4週才結束，發行機構會提前把4週的股票總量以履約價格112%賣出，返還款項給投資人</li>
     </ul>
   </div>
 
@@ -404,42 +403,35 @@ table tr:hover td {
 
 <h3>📈 情境分析</h3>
 
-<!-- 圖表獨立區塊 -->
+<div class="product-info">
 
+  <div class="info-line">
+    <strong><big>情境1:</big></strong> <br>未觸及提前出場價格前，兩週結算一次賣出股票的款項<br>觸及提前出場價格後，會依照交易日返還賣出股票的款項，剩餘未賣出的股票也在提前出場時一併返回給投資人。
+  </div>
 
-<div class="scenario-cards">
+<div style="
+    display:flex; 
+    justify-content:flex-start; 
+    margin:20px 0;
+">
+    <img src="image/DQ1.png" 
+         style="width:90%; max-width:700px; border-radius:8px;"> </div>
 
-<div class="scenario scenarioA" onclick="showScenarioChart('A')">
-<div class="scenario-title">A情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格大於等於(>=)履約價格(Strike)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="divider"></div>
 
-<div class="scenario scenarioB" onclick="showScenarioChart('B')">
-<div class="scenario-title">B情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，但是從來沒有觸及下限價(KI)</div><div class="scenario-desc">投資人領回: 100%本金 + 每一期配息</div></div>
+<div class="product-info">
 
-<div class="scenario scenarioC" onclick="showScenarioChart('C')">
-<div class="scenario-title">C情境</div><div class="scenario-desc">商品沒有發生提前出場事件，到期時表現最差的連結股票價格小於(<)履約價格(Strike)，而且曾經觸及過下限價(KI)</div><div class="scenario-desc">投資人於到期日，以履約價格轉換成表現最差連結股票 + 應計配息</div></div>
+  <div class="info-line">
+    <strong><big>情境2:</big></strong> <br>第1週就觸及提前出場價格，商品就會立即出場<br>因為發行時有設定保證賣出4週量的股票，所以出場時會把發行起算4週的股票都賣出，並返還款項及剩餘股數給投資人。
+  </div>
 
-<div class="scenario scenarioD" onclick="showScenarioChart('D')">
-<div class="scenario-title">D情境</div><div class="scenario-desc">在保證領息期間過後，連結的所有股票均漲過提前出場價格(KO)</div><div class="scenario-desc">投資人領回: 100%本金 + 應計配息</div></div>
-</div>
-
-
-<div style="position:relative; max-width:800px; margin:auto; margin-top:20px;">
-    <canvas id="scenarioChart" style="width:100%;"></canvas>
-    
-    <!-- 左側金流標籤 -->
-    <div style="position:absolute; bottom:-60px; left:-60px; width:60px; height:60px; display:flex; align-items:center; justify-content:center; font-weight:bold; color:#0077cc; font-size:19px;">金流</div>
-
-    <!-- 金流顯示容器 -->
-    <div id="cashFlowOverlay" style="position:absolute; bottom:-60px; left:0; width:100%; height:60px; display:flex; justify-content:space-between; pointer-events:none;">
-        <div style="flex:1; margin-left:2px; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">固定配息</div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">固定配息</div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">固定配息</div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;">應計配息</div>
-        <div style="flex:1; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:14px;"> </div>
-        <div style="flex:3; display:flex; align-items:center; justify-content:center; border:1px solid #0077cc; border-radius:6px; background:#e6f0ff; font-size:12px;">本金+配息 / 股票+配息</div>
-    </div>
-</div>
-
+<div style="
+    display:flex; 
+    justify-content:flex-start; 
+    margin:20px 0;
+">
+    <img src="image/DQ2.png" 
+         style="width:90%; max-width:700px; border-radius:8px;"> </div>
 
 
 
@@ -447,34 +439,21 @@ table tr:hover td {
 
 <h3>❓ 常見問題</h3>
 <div class="faq-features">
+
     <div class="feature-item" onclick="openFAQ('faq1', event)">
         <div class="feature-circle faq1-circle">Q1</div>
-        <div class="feature-text">
-            到期接股票怎麼計算？<br>
-            (連結股票和商品計價 <span style="font-weight:bold; color:#c00;">幣別相同</span>)
-        </div>
+        <div class="feature-text">結構型商品不可交易標的及幣別？</div>
     </div>
     <div class="feature-item" onclick="openFAQ('faq2', event)">
         <div class="feature-circle faq2-circle">Q2</div>
-        <div class="feature-text">
-            到期接股票怎麼計算？<br>
-            (連結股票和商品計價 <span style="font-weight:bold; color:#c00;">幣別不同</span>)
-        </div>
+        <div class="feature-text">連結股票若發生合併、併購、國有化、破產或下市怎麼辦？</div>
     </div>
     <div class="feature-item" onclick="openFAQ('faq3', event)">
         <div class="feature-circle faq3-circle">Q3</div>
-        <div class="feature-text">結構型商品不可交易標的及幣別？</div>
+        <div class="feature-text">連結股票若發生股票分割（Stock Split）怎麼處理？</div>
     </div>
     <div class="feature-item" onclick="openFAQ('faq4', event)">
         <div class="feature-circle faq4-circle">Q4</div>
-        <div class="feature-text">連結股票若發生合併、併購、國有化、破產或下市怎麼辦？</div>
-    </div>
-    <div class="feature-item" onclick="openFAQ('faq5', event)">
-        <div class="feature-circle faq5-circle">Q5</div>
-        <div class="feature-text">連結股票若發生股票分割（Stock Split）怎麼處理？</div>
-    </div>
-    <div class="feature-item" onclick="openFAQ('faq6', event)">
-        <div class="feature-circle faq6-circle">Q6</div>
         <div class="feature-text">境外結構型商品的接股成本如何認列？</div>
     </div>
 </div>
@@ -492,168 +471,9 @@ table tr:hover td {
 const faqData = {
 
 
-faq1: `
-<div style="
-    border-left:none;  /*6px solid #4A90E2;*/
-    padding:18px 20px;
-    margin:10px 0 20px 0;
-">
-
-    <div style="display:flex; align-items:center; margin-bottom:10px;">
-
-        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q1｜到期接股票怎麼計算的？(同幣別)
-        </h2>
-    </div>
-
-    <p style="font-size:15px; line-height:1.7;">
-        當 FCN 在到期出現 <b style="color:#c00;">C 情境（觸及 KI 且期末低於 Strike）</b>，就會進入
-        <b style="font-weight:700; color:#c00;">實物履約（接股票）</b>。
-    </p>
-
-    <h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 實物履約基本資訊</h3>
-
-    <table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:15px;">
-        <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">承接股票</th>
-            <td style="padding:10px; background:#fafafa;">NVDA</td>
-        </tr>
-        <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">幣別</th>
-            <td style="padding:10px; background:#fafafa;">USD</td>
-        </tr>
-        <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">匯率</th>
-            <td style="padding:10px; background:#fafafa;">1.00</td>
-        </tr>
-        <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">履約股票價格</th>
-            <td style="padding:10px; background:#fafafa;">USD 150</td>
-        </tr>
-        <tr>
-            <th style="padding:10px; background:#e9f2ff; text-align:left;">最後評價日收盤價</th>
-            <td style="padding:10px; background:#fafafa;">USD 100</td>
-        </tr>
-    </table>
-
-    <p style="font-size:15px; line-height:1.7;">
-        假設 FCN 為美元計價，每單位名目本金為 <b>10,000 美元</b>。
-    </p>
-
-    <div style="
-        background:#fff3cd;
-        padding:15px;
-        border-radius:8px;
-        border:1px solid #ffe8a1;
-        margin:18px 0;
-    ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 每單位可承接股數</h3>
-        10,000 ÷ 150 = <b style="font-size:18px;">66.6667 股</b><br>
-        ✔ 最終可承接 <b style="color:#d35400;">66 股 NVDA</b>  
-        ✔ 小數部分須換成現金償付
-    </div>
-
-    <div style="
-        background:#e8f8f5;
-        padding:15px;
-        border-radius:8px;
-        border:1px solid #d1f2eb;
-        margin:18px 0;
-    ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#117a65;">📌 殘餘股數換成現金</h3>
-        0.6667 × 100 = <b style="color:#117a65; font-size:17px;">66.67 USD</b><br>
-        ✔ 以最後評價日收盤價計算  
-        ✔ 現金金額取小數兩位
-    </div>
-
-</div>
-`,
 
 
-
-faq2: `
-<div style="
-    border-left:none;
-    padding:18px 20px;
-    margin:10px 0 20px 0;
-">
-
-    <div style="display:flex; align-items:center; margin-bottom:10px;">
-
-        <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q2｜到期接股票怎麼計算的？(不同幣別)
-        </h2>
-    </div>
-
-    <p style="font-size:15px; line-height:1.7;">
-        當 FCN 在到期出現 <b style="color:#c00;">C 情境（觸及 KI 且期末低於 Strike）</b>，就會進入
-        <b style="font-weight:700; color:#c00;">實物履約（接股票）</b>。
-    </p>
-
-<h3 style="margin:20px 0 8px 0; font-size:18px; color:#4A90E2;">📌 實物履約基本資訊</h3>
-
-<table style="width:100%; border-collapse:collapse; margin:10px 0; font-size:15px;">
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left; width:40%;">承接股票</th>
-        <td style="padding:10px; background:#fafafa;">NVDA</td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">幣別</th>
-        <td style="padding:10px; background:#fafafa;"><span style="font-weight:bold; color:#c00;">JPY</span></td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">匯率</th>
-        <td style="padding:10px; background:#fafafa;"><span style="font-weight:bold; color:#c00;">160</span></td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">履約股票價格</th>
-        <td style="padding:10px; background:#fafafa;">USD 150</td>
-    </tr>
-    <tr>
-        <th style="padding:10px; background:#e9f2ff; text-align:left;">最後評價日收盤價</th>
-        <td style="padding:10px; background:#fafafa;">USD 100</td>
-    </tr>
-</table>
-
-    <p style="font-size:15px; line-height:1.7;">
-        假設 FCN 為日幣計價，每單位名目本金為 <b>1,000,000 日幣</b>。
-    </p>
-
-    <div style="
-        background:#fff3cd;
-        padding:15px;
-        border-radius:8px;
-        border:1px solid #ffe8a1;
-        margin:18px 0;
-    ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#b8860b;">📌 每單位可承接股數</h3>
-        1,000,000 ÷ 匯率160(先換算成美元) ÷ 150 = <b style="font-size:18px;">41.6667 股</b><br>
-        ✔ 最終可承接 <b style="color:#d35400;">41 股 NVDA</b>  
-        ✔ 小數部分須換成現金償付
-    </div>
-
-    <div style="
-        background:#e8f8f5;
-        padding:15px;
-        border-radius:8px;
-        border:1px solid #d1f2eb;
-        margin:18px 0;
-    ">
-        <h3 style="margin:0 0 10px 0; font-size:17px; color:#117a65;">📌 殘餘股數換成現金</h3>
-        0.6667 × 100 = <b style="color:#117a65; font-size:17px;">66.67 USD</b><br>66.67 USD再以匯率160換回JPY 10,667，返還投資人<br>
-        ✔ 以最後評價日收盤價計算  
-        ✔ 日幣金額取至整數位
-    </div>
-
-</div>
-`,
-
-
-
-
-
-
-    faq3: `
+    faq1: `
 
 <div style="
     margin:25px 0;
@@ -672,7 +492,7 @@ faq2: `
         margin-bottom:12px;
         letter-spacing:0.5px;
     ">
-        Q3｜結構型商品不可交易標的及幣別？
+        Q1｜結構型商品不可交易標的及幣別？
     </div>
 
     <!-- 內容 -->
@@ -705,7 +525,7 @@ faq2: `
 `,
 
 
-    faq4: `
+    faq2: `
 <div style="
     border-left:none;
     padding:18px 20px;
@@ -714,7 +534,7 @@ faq2: `
 
     <div style="display:flex; align-items:center; margin-bottom:10px;">
         <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q4｜連結股票若發生合併、併購、國有化、破產或下市？
+            Q2｜連結股票若發生合併、併購、國有化、破產或下市？
         </h2>
     </div>
 
@@ -761,7 +581,7 @@ faq2: `
 
 
 `,
-    faq5: `
+    faq3: `
 
 <div style="
     border-left:none;
@@ -771,7 +591,7 @@ faq2: `
 
     <div style="display:flex; align-items:center; margin-bottom:10px;">
         <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q5｜連結股票發生股票分割（Stock Split）時怎麼調整？
+            Q3｜連結股票發生股票分割（Stock Split）時怎麼調整？
         </h2>
     </div>
 
@@ -823,7 +643,7 @@ faq2: `
 `,
 
 
-    faq6: `
+    faq4: `
 
 <div style="
     border-left:none;
@@ -833,7 +653,7 @@ faq2: `
 
     <div style="display:flex; align-items:center; margin-bottom:10px;">
         <h2 style="margin:0; font-size:22px; font-weight:700; color:#333;">
-            Q6｜境外結構型商品的接股成本如何認列？
+            Q4｜境外結構型商品的接股成本如何認列？
         </h2>
     </div>
 
