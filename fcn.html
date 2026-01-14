@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
- 
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <style>
         :root {
             --bg-color: #f4f7fa;
@@ -185,7 +185,7 @@
                 <p style="font-size: 1rem; color: var(--text-sub); text-align: center;">💡 一個週期(比照天期)前，進入市場的實際表現</p>
             </div>
         </div>
-        <h3 style="margin-top:40px; margin-bottom:15px; border-left: 4px solid var(--primary); padding-left: 10px;">Technical Analysis & Long-term Strategy Backtest</h3>
+        <h3 style="margin-top:40px; margin-bottom:15px; border-left: 4px solid var(--primary); padding-left: 10px;">技術分析 & 回測結果 Technical Analysis & Long-term Backtesting</h3>
         <div id="techOptions">
             <label class="tech-option active"><input type="radio" name="tech" value="none" checked><span>給我乾淨的線圖就好</span></label>
             <label class="tech-option"><input type="radio" name="tech" value="ma"><span>移動平均線MA (20/60/200)</span></label>
@@ -388,21 +388,110 @@ function dynamicCholesky(A) {
         L[i][j] = (i === j) ? Math.sqrt(Math.max(A[i][i] - s, 0)) : (1.0 / L[j][j] * (A[i][j] - s));
     } } return L;
 }
+
 function renderMCResults(res, params) {
+    // 強制在渲染前註冊插件 (解決標籤不顯示的問題)
+    if (typeof ChartDataLabels !== 'undefined') {
+        Chart.register(ChartDataLabels);
+    }
+
+    // 更新上方數值卡片
     document.getElementById('avgReturn').innerText = res.avgReturn.toFixed(4);
     document.getElementById('avgPeriod').innerText = res.avgDay.toFixed(1) + " Days";
     document.getElementById('volPeriodLabel').innerText = `(${currentVolDays}D)`;
+    
+    // 更新波動率列表
     const volList = document.getElementById('volList');
-    volList.innerHTML = params.symbols.map((s, i) => `<div class="vol-item"><span class="vol-symbol">${s}</span><span class="vol-num">${(params.V[i]*100).toFixed(2)}%</span></div>`).join('');
-    if(mcScenarioChart) mcScenarioChart.destroy();mcScenarioChart = new Chart(document.getElementById('scenarioChart'), { type: 'bar',data: { labels: [...Array(params.totalMonths).keys()].map(i => `KO M${i+1}`).concat(["到期-現金", "實物履約"]), 
-datasets: [{ label: 'Probability (%)', data: res.scenarioProbs, backgroundColor: '#1a73e8' }] }, 
-options: { responsive:true, maintainAspectRatio:false, plugins:{ title:{display:true, text:'蒙地卡羅模擬機率分布',font: { size: 18, weight: 'bold' }},legend: { labels: { font: { size: 12 } } }  },scales: { x: { ticks: { font: { size: 12 } } },
- y: { ticks: { font: { size: 12 } } }} }  });
+    volList.innerHTML = params.symbols.map((s, i) => 
+        `<div class="vol-item"><span class="vol-symbol">${s}</span><span class="vol-num">${(params.V[i]*100).toFixed(2)}%</span></div>`
+    ).join('');
 
+    // --- 蒙地卡羅長條圖 ---
+    if(mcScenarioChart) mcScenarioChart.destroy();
+    mcScenarioChart = new Chart(document.getElementById('scenarioChart'), { 
+        type: 'bar',
+        data: { 
+            labels: [...Array(params.totalMonths).keys()].map(i => `KO M${i+1}`).concat(["到期-現金", "實物履約"]), 
+            datasets: [{ 
+                label: 'Probability (%)', 
+                data: res.scenarioProbs.map(v => v.toFixed(2)), 
+                backgroundColor: '#1a73e8' 
+            }] 
+        }, 
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            layout: {
+                padding: { top: 10 } // 增加頂部間距，防止文字被切掉
+            },
+            plugins: { 
+                // 數據標籤的核心配置
+                datalabels: {
+                    display: true,      // 強制顯示
+                    anchor: 'end',      // 位置在長條末端
+                    align: 'top',       // 對齊長條上方
+                    offset: 5,          // 距離長條 5px
+                    color: '#202124',   // 數字顏色
+                    font: {
+                        weight: 'bold',
+                        size: 13        // 稍微放大一點
+                    },
+                    formatter: function(value) {
+                        return (value > 0) ? value + '%' : ''; // 只有大於 0 才顯示
+                    }
+                },
+                title: { 
+                    display: true, 
+                    text: '蒙地卡羅模擬機率分布', 
+                    font: { size: 18, weight: 'bold' } 
+                },
+                legend: { display: false }
+            },
+            scales: { 
+                x: { ticks: { font: { size: 12 } } },
+                y: { 
+                    beginAtZero: true,
+                    suggestedMax: Math.max(...res.scenarioProbs) * 1.25, // 預留更多空間給標籤
+                    ticks: { font: { size: 12 } } 
+                }
+            } 
+        } 
+    });
+
+    // --- UL實物履約圓餅圖 ---
     if(mcWorstChart) mcWorstChart.destroy();
-    mcWorstChart = new Chart(document.getElementById('worstChart'), { type: 'pie', data: { labels: params.symbols, datasets: [{ data: res.worstAssetProbs, backgroundColor: ['#ea4335', '#f9ab00', '#34a853'] }] 
-}, options: {responsive:true, maintainAspectRatio:false, plugins:{title:{display:true, text:'UL實物履約機率',font: { size: 18, weight: 'bold' } },legend: { position: 'bottom',labels: { font: { size: 14 } } } } } }); }
-
+    mcWorstChart = new Chart(document.getElementById('worstChart'), { 
+        type: 'pie', 
+        data: { 
+            labels: params.symbols, 
+            datasets: [{ 
+                data: res.worstAssetProbs.map(v => v.toFixed(2)), 
+                backgroundColor: ['#ea4335', '#f9ab00', '#34a853'] 
+            }] 
+        }, 
+        options: {
+            responsive: true, 
+            maintainAspectRatio: false, 
+            plugins: {
+                datalabels: {
+                    display: true,
+                    color: '#fff',
+                    font: { weight: 'bold', size: 14 },
+                    formatter: (value) => (value > 0) ? value + '%' : ''
+                },
+                title: { 
+                    display: true, 
+                    text: 'UL實物履約機率', 
+                    font: { size: 18, weight: 'bold' } 
+                },
+                legend: { 
+                    position: 'bottom',
+                    labels: { font: { size: 14 } } 
+                } 
+            } 
+        } 
+    }); 
+}
  
 function renderCorrelationHeatmap(symbols, corMat) {
     const container = document.getElementById('heatmapArea'); container.innerHTML = '';
@@ -602,13 +691,33 @@ function updateSingleStockChart(symbol) {
  
     const ctx = document.getElementById(`chart_${symbol}`).getContext('2d');
     if(techChartInstances[symbol]) techChartInstances[symbol].destroy();
-    techChartInstances[symbol] = new Chart(ctx, { type: 'line', data: { labels: displayLabels, datasets }, options: { responsive:true, maintainAspectRatio:false, interaction:{mode:'index', intersect:false}, scales, plugins:{ legend:{labels:{boxWidth: 10, font:{size:11}}}, zoom: { pan: { enabled: true, mode: 'x' }, zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: 'x', overScaleMode: 'y' } } } } }); } document.getElementById('techOptions').addEventListener('change', (e) => {
-    if(e.target.name === 'tech') {
+    techChartInstances[symbol] = new Chart(ctx, { 
+        type: 'line', 
+        data: { labels: displayLabels, datasets }, 
+        options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            interaction: { mode: 'index', intersect: false }, 
+            scales, 
+            plugins: { 
+                datalabels: { display: false }, 
+                legend: { labels: { boxWidth: 10, font: { size: 11 } } }, 
+                zoom: { pan: { enabled: true, mode: 'x' }, zoom: {wheel: { enabled: true },pinch: { enabled: true }, mode: 'x', overScaleMode: 'y'}} }} });}
+document.getElementById('techOptions').addEventListener('change', (e) => {
+    if (e.target.name === 'tech') {
         document.querySelectorAll('.tech-option:not(.level-toggle)').forEach(el => el.classList.remove('active'));
-        e.target.closest('.tech-option').classList.add('active');
+        e.target.closest('.tech-option').classList.add('active');}
+    if (e.target.id === 'showPriceLevels') {
+        document.getElementById('lvlBtn').classList.toggle('active', e.target.checked);
     }
-    if(e.target.id === 'showPriceLevels') document.getElementById('lvlBtn').classList.toggle('active', e.target.checked);
-    Object.keys(techChartInstances).forEach(s => updateSingleStockChart(s)); }); document.getElementById('chartYears').addEventListener('change', () => {
-    if (Object.keys(globalStockData).length > 0) Object.keys(techChartInstances).forEach(s => updateSingleStockChart(s)); }); </script> </body> </html>
+    Object.keys(techChartInstances).forEach(s => updateSingleStockChart(s));});
+document.getElementById('chartYears').addEventListener('change', () => {
+    if (Object.keys(globalStockData).length > 0) {
+        Object.keys(techChartInstances).forEach(s => updateSingleStockChart(s));}});
+document.getElementById('months').addEventListener('change', () => {
+    if (Object.keys(globalStockData).length > 0) {
+        Object.keys(techChartInstances).forEach(s => updateSingleStockChart(s));}});
 
-
+</script>
+</body>
+</html>
