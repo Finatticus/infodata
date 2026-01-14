@@ -45,6 +45,10 @@
             transition: transform 0.2s;
             position: relative;
             overflow: hidden;
+    text-align: center; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
         }
         .metric-card:hover { transform: translateY(-2px); }
         .metric-card::before {
@@ -52,13 +56,14 @@
         }
         .metric-card.orange::before { background: var(--warning); }
         .metric-card.green::before { background: var(--success); }
-        .metric-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-        .metric-title { font-size: 0.85rem; color: var(--text-sub); font-weight: 700; letter-spacing: 0.5px; }
+        .metric-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; width: 100%;}
+        .metric-title { font-size: 1rem; color: var(--text-sub); font-weight: 700; letter-spacing: 0.5px; }
         .metric-icon { font-size: 1.2rem; opacity: 0.7; }
         .metric-value { display: block; font-size: 2rem; font-weight: 800; color: var(--text-main); margin: 5px 0; }
         .metric-subtext { font-size: 0.75rem; color: var(--text-sub); margin-top: 5px; font-weight: 400; }
-     
-        .vol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
+.metric-card:has(#avgReturn) {display: none;}
+
+        .vol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); width: 100%; }
         .vol-item { text-align: center; }
         .vol-symbol { font-size: 0.7rem; font-weight: 700; color: var(--text-sub); display: block; }
         .vol-num { font-size: 0.9rem; font-weight: 700; color: var(--primary); }
@@ -105,7 +110,7 @@
         <div class="grid">
             <div class="input-group"><label>API Key</label><input type="text" id="apiKey" value="d7de0902b30e47dead805e170f78bac6"></div>
             <div class="input-group"><label>股票代號 (1-3檔,用逗號分隔)</label><input type="text" id="symbols" value="TSLA,TSM,NVDA"></div>
-            <div class="input-group"><label>天期 (月)</label><input type="number" id="months" value="6"></div>
+            <div class="input-group"><label>天期 (1-12月)</label><input type="number" id="months" value="6"></div>
             <div class="input-group"><label>履約價 Strike (%)</label><input type="number" id="strikePct" value="75"></div>
             <div class="input-group"><label>年化配息率 Coupon (%)</label><input type="number" id="coupon" value="15" step="0.01"></div>
             <div class="input-group"><label>提前出場價 KO (%)</label><input type="number" id="koPct" value="100"></div>
@@ -129,17 +134,17 @@
     </div>
     <div id="result-section" class="result-section">
         <div class="metrics">
-            <div class="metric-card">
-                <div class="metric-header">
-                    <span class="metric-title">EXPECTED PAYOFF</span>
-                    <span class="metric-icon">💰</span>
-                </div>
-                <span id="avgReturn" class="metric-value">-</span>
-                <div class="metric-subtext">預期總價值 (含息/折現)</div>
-            </div>
+<div class="metric-card" style="display: none;">
+    <div class="metric-header">
+        <span class="metric-title">EXPECTED PAYOFF</span>
+        <span class="metric-icon">💰</span>
+    </div>
+    <span id="avgReturn" class="metric-value">-</span>
+    <div class="metric-subtext">預期總價值 (含息/折現)</div>
+</div>
             <div class="metric-card orange">
                 <div class="metric-header">
-                    <span class="metric-title">AVG DURATION</span>
+                    <span class="metric-title">平均存續期間 AVG DURATION</span>
                     <span class="metric-icon">⏳</span>
                 </div>
                 <span id="avgPeriod" class="metric-value">-</span>
@@ -147,7 +152,7 @@
             </div>
             <div class="metric-card green">
                 <div class="metric-header">
-                    <span class="metric-title">HISTORICAL VOLATILITY</span>
+                    <span class="metric-title">歷史波動度 HISTORICAL VOLATILITY</span>
                     <span id="volPeriodLabel" style="font-size:0.7rem; color:var(--text-sub);">(-)</span>
                 </div>
                 <div id="volList" class="vol-grid">
@@ -164,7 +169,7 @@
             <div class="card-wrapper chart-auto">
                 <h3 style="font-size: 1rem; text-align: left; border-left: 4px solid var(--primary); padding-left: 10px;">相關係數矩陣 Correlation (<span id="corPeriodLabel"></span>)</h3>
                 <div id="heatmapArea" class="heatmap-container"></div>
-                <p style="font-size: 0.7rem; color: var(--text-sub); text-align: center; margin-top: 5px;">💡 紅色是正相關，藍色是負相關，計算期間與產品 Duration 同步</p>
+                <p style="font-size: 1rem; color: var(--text-sub); text-align: center; margin-top: 5px;">💡 紅色是正相關，藍色是負相關，計算期間與產品 Duration 同步</p>
             </div>
             <div class="card-wrapper chart-auto">
                 <h3 style="font-size: 1rem; text-align: left; border-left: 4px solid var(--warning); padding-left: 10px;">歷史回測 (Historical Backtest)</h3>
@@ -177,7 +182,7 @@
                         <div class="backtest-item"><span class="bt-label">總損益 Total Return</span><span id="btReturn" class="bt-value">-</span></div>
                     </div>
                 </div>
-                <p style="font-size: 0.7rem; color: var(--text-sub); text-align: center;">💡 一個週期(比照天期)前，進入市場的實際表現</p>
+                <p style="font-size: 1rem; color: var(--text-sub); text-align: center;">💡 一個週期(比照天期)前，進入市場的實際表現</p>
             </div>
         </div>
         <h3 style="margin-top:40px; margin-bottom:15px; border-left: 4px solid var(--primary); padding-left: 10px;">Technical Analysis & Long-term Strategy Backtest</h3>
@@ -192,6 +197,24 @@
         </div>
         <div id="stockChartsArea" class="stock-charts-area"></div>
     </div>
+
+<div style="margin-top: 50px; padding: 20px 0; border-top: 1px solid #dadce0; font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif; color: #5f6368; line-height: 1.7;">
+    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+        <span style="color: #b71c1c; font-weight: bold; font-size: 0.9rem; letter-spacing: 1px;">RISK DISCLOSURE & DISCLAIMER</span>
+        <div style="flex-grow: 1; height: 1px; background-color: #eee; margin-left: 15px;"></div>
+    </div>
+    <h4 style="margin: 0 0 12px 0; color: #3c4043; font-size: 1rem; font-weight: 600;">⚠️ 重要風險聲明與投資警語</h4>
+    <p style="font-size: 0.85rem; margin-bottom: 15px;">
+        本模型提供之分析數據（包含但不限於預期報酬、勝率及安全性分析）係基於 <span style="color: #b71c1c;"><b>蒙地卡羅模擬模型 (Monte Carlo Simulation)</b></span> 及歷史股價數據計算而成。相關模擬結果乃建立在「假設市場未來波動規律與歷史數據一致」之前提下，僅供學術研究與投資參考，<span style="text-decoration: underline;">並不代表、亦不保證未來之市場表現或實際投資收益</span>。</p>
+    <ul style="padding-left: 18px; font-size: 0.8rem; color: #70757a; list-style-type: square;">
+        <li style="margin-bottom: 6px;"><b style="color: #5f6368;">模型限制：</b> 統計機率模型無法預測極端黑天鵝事件、政治動盪或公司結構性突發改變。</li>
+        <li style="margin-bottom: 6px;"><b style="color: #5f6368;">歷史回測：</b> 歷史績效僅供參考，過去市場走勢不必然於未來重複發生。</li>
+        <li style="margin-bottom: 6px;"><b style="color: #5f6368;">產品風險：</b> FCN 屬高風險結構型商品，涉及衍生性金融工具交易，可能導致本金重大損失或涉及實物交割。</li>
+        <li style="margin-bottom: 6px;"><b style="color: #5f6368;">審慎評估：</b> 投資人應詳閱商品說明書並確認自身風險承受能力，本平台不負擔任何投資盈虧責任。</li></ul>
+    <div style="margin-top: 20px; padding: 10px; border: 1px solid #f1f3f4; background-color: #fafafa; font-size: 0.85rem; color: #b71c1c; text-align: center; font-weight: 500;">投資一定有風險，投資工具交易有賺有賠，申購前應詳閱相關產品說明書及投資人須知，並自行負擔投資損益責任。</div>
+</div>
+
+
 </div>
 <script>
 let mcScenarioChart = null, mcWorstChart = null; let techChartInstances = {}; let globalStockData = {}; let currentVolDays = 126; class SeededRandom {
@@ -371,10 +394,15 @@ function renderMCResults(res, params) {
     document.getElementById('volPeriodLabel').innerText = `(${currentVolDays}D)`;
     const volList = document.getElementById('volList');
     volList.innerHTML = params.symbols.map((s, i) => `<div class="vol-item"><span class="vol-symbol">${s}</span><span class="vol-num">${(params.V[i]*100).toFixed(2)}%</span></div>`).join('');
-    if(mcScenarioChart) mcScenarioChart.destroy();
-    mcScenarioChart = new Chart(document.getElementById('scenarioChart'), { type: 'bar', data: { labels: [...Array(params.totalMonths).keys()].map(i => `KO M${i+1}`).concat(["到期-現金", "實物履約"]), datasets: [{ label: 'Probability (%)', data: res.scenarioProbs, backgroundColor: '#1a73e8' }] }, options: { responsive:true, maintainAspectRatio:false, plugins:{title:{display:true, text:'蒙地卡羅模擬機率分布'}} } });
+    if(mcScenarioChart) mcScenarioChart.destroy();mcScenarioChart = new Chart(document.getElementById('scenarioChart'), { type: 'bar',data: { labels: [...Array(params.totalMonths).keys()].map(i => `KO M${i+1}`).concat(["到期-現金", "實物履約"]), 
+datasets: [{ label: 'Probability (%)', data: res.scenarioProbs, backgroundColor: '#1a73e8' }] }, 
+options: { responsive:true, maintainAspectRatio:false, plugins:{ title:{display:true, text:'蒙地卡羅模擬機率分布',font: { size: 18, weight: 'bold' }},legend: { labels: { font: { size: 12 } } }  },scales: { x: { ticks: { font: { size: 12 } } },
+ y: { ticks: { font: { size: 12 } } }} }  });
+
     if(mcWorstChart) mcWorstChart.destroy();
-    mcWorstChart = new Chart(document.getElementById('worstChart'), { type: 'pie', data: { labels: params.symbols, datasets: [{ data: res.worstAssetProbs, backgroundColor: ['#ea4335', '#f9ab00', '#34a853'] }] }, options: { responsive:true, maintainAspectRatio:false, plugins:{title:{display:true, text:'UL實物履約機率'}} } }); }
+    mcWorstChart = new Chart(document.getElementById('worstChart'), { type: 'pie', data: { labels: params.symbols, datasets: [{ data: res.worstAssetProbs, backgroundColor: ['#ea4335', '#f9ab00', '#34a853'] }] 
+}, options: {responsive:true, maintainAspectRatio:false, plugins:{title:{display:true, text:'UL實物履約機率',font: { size: 18, weight: 'bold' } },legend: { position: 'bottom',labels: { font: { size: 14 } } } } } }); }
+
  
 function renderCorrelationHeatmap(symbols, corMat) {
     const container = document.getElementById('heatmapArea'); container.innerHTML = '';
