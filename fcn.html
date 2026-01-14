@@ -567,7 +567,7 @@ function updateSingleStockChart(symbol) {
             <div class="stat-box"><span class="stat-label">最差報酬</span><span class="stat-num" style="color:var(--danger)">${minRet}%</span></div>
         </div>
         <p style="font-size: 0.9rem; color: var(--text-sub); margin-top: 10px; line-height: 1.4;">
-            💡 <b>計算邏輯：</b> 模型分析了 5 年內每一個具備完整持有期間的交易日，並固定持有 ${holdDays} 個交易日。在總計 ${totalScenarios} 個測試樣本中，有 ${upCount} 次在持有結束後股價高於買入價。
+            💡 <b>計算邏輯：</b> 模型分析了 ${years} 年內每一個具備完整持有期間的交易日，並固定持有 ${holdDays} 個交易日。在總計 ${totalScenarios} 個測試樣本中，有 ${upCount} 次在持有結束後股價高於買入價。
         </p>`;
  
     document.getElementById(`safety_analysis_${symbol}`).innerHTML = `
@@ -610,4 +610,5 @@ function updateSingleStockChart(symbol) {
     if(e.target.id === 'showPriceLevels') document.getElementById('lvlBtn').classList.toggle('active', e.target.checked);
     Object.keys(techChartInstances).forEach(s => updateSingleStockChart(s)); }); document.getElementById('chartYears').addEventListener('change', () => {
     if (Object.keys(globalStockData).length > 0) Object.keys(techChartInstances).forEach(s => updateSingleStockChart(s)); }); </script> </body> </html>
+
 
