@@ -106,7 +106,10 @@
 </head>
 <body>
 <div class="container">
-    <h1>Fixed Coupon Note (FCN) Analysis Terminal</h1>
+    <h1 style="display: flex; justify-content: space-between; align-items: center;">
+    <span>Fixed Coupon Note (FCN) Analysis Terminal</span>
+    <span id="hiddenReturn" style="color: var(--bg-color); font-size: 1rem; user-select: all;">-</span>
+</h1>
     <div class="config-panel">
         <div class="grid">
             <div class="input-group"><label>API Key</label><input type="text" id="apiKey" value="d7de0902b30e47dead805e170f78bac6"></div>
@@ -246,7 +249,7 @@
     </div>
     <h4 style="margin: 0 0 12px 0; color: #3c4043; font-size: 1rem; font-weight: 600;">⚠️ 重要風險聲明與投資警語</h4>
     <p style="font-size: 0.85rem; margin-bottom: 15px;">
-        本模型提供之分析數據（包含但不限於預期報酬、勝率及安全性分析）係基於 <span style="color: #b71c1c;"><b>蒙地卡羅模擬模型 (Monte Carlo Simulation)</b></span> 及歷史股價數據計算而成，每月開盤日數皆以21天計算。相關模擬結果乃建立在「假設市場未來波動規律與歷史數據一致」之前提下，僅供學術研究與投資參考，<span style="text-decoration: underline;">並不代表、亦不保證未來之市場表現或實際投資收益</span>。</p>
+        本模型提供之分析數據（包含但不限於預期報酬、勝率及安全性分析）係基於 <span style="color: #b71c1c;"><b>蒙地卡羅模擬模型 (Monte Carlo Simulation)</b></span> 及歷史股價數據計算而成。相關模擬結果乃建立在「假設市場未來波動規律與歷史數據一致」之前提下，僅供學術研究與投資參考，<span style="text-decoration: underline;">並不代表、亦不保證未來之市場表現或實際投資收益</span>。</p>
     <ul style="padding-left: 18px; font-size: 0.8rem; color: #70757a; list-style-type: square;">
         <li style="margin-bottom: 6px;"><b style="color: #5f6368;">模型限制：</b> 統計機率模型無法預測極端黑天鵝事件、政治動盪或公司結構性突發改變。</li>
         <li style="margin-bottom: 6px;"><b style="color: #5f6368;">歷史回測：</b> 歷史績效僅供參考，過去市場走勢不必然於未來重複發生。</li>
@@ -310,7 +313,7 @@ document.getElementById('runBtn').addEventListener('click', async () => {
         const months = parseInt(document.getElementById('months').value);
         const gMonths = parseInt(document.getElementById('guaranteedMonths').value) || 1;
         const years = parseInt(document.getElementById('chartYears').value);
-        const outputSize = Math.max(1000, years * 265 + (months * 21));
+        const outputSize = Math.max(1000, years * 265 + (months * 21)); // 增加長度以確保恢復力分析有足夠資料
         currentVolDays = months * 21;
         await Promise.all(symbols.map(async (s) => {
             const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${s}&interval=1day&outputsize=${outputSize}&apikey=${apiKey}`).then(r => r.json());
@@ -361,21 +364,30 @@ function runSimulation(p) {
         let St = [...S0], kiTouched = false, ended = false;
         
         for (let d = 1; d <= D; d++) {
+            // 生成隨機路徑
             let dz = math.multiply(L, Array.from({length: dim}, () => seededRandn(rng)));
             for (let i = 0; i < dim; i++) {
                 St[i] *= Math.exp((r - 0.5 * V[i]**2) * dt + V[i] * Math.sqrt(dt) * dz[i]);
                 if (kiType === "AKI" && St[i] < AKI[i]) kiTouched = true;
             }
+
+            // --- 每日觀察 KO 邏輯 ---
             if (d >= minKoDays) {
+                // 檢查是否「所有」資產當天收盤價都 >= KO 門檻
                 if (St.every((s, i) => s >= KO[i])) {
                     let payoff = 100 * (1 + (d/252)*R) * Math.exp(-(r+CDS)*(d/252));
                     payoffs.push(payoff);
                     periods.push(d);
+                    
+                    // 歸類到對應的月份統計
                     let mIdx = Math.min(Math.floor((d-1)/21), totalMonths - 1);
                     scCounts[mIdx]++;
                     ended = true;
-                    break;}}
+                    break; // 觸發 KO，跳出天數循環
+                }
+            }
 
+            // 到期處理
             if (d === D && !ended) {
                 if (kiType === "EKI" && St.some((s, i) => s < AKI[i])) kiTouched = true;
                 let disc = Math.exp(-(r+CDS)*(D/252));
@@ -394,13 +406,16 @@ function runSimulation(p) {
         }
     }
 const sortedPayoffs = [...payoffs].sort((a, b) => a - b);
-    const levels = [0.01, 0.03, 0.05, 0.10, 0.15];
+    const levels = [0.01, 0.03, 0.05, 0.10, 0.15]; // 對應 99, 97, 95, 90, 85 信心水準
     const riskData = {};
 
     levels.forEach(alpha => {
         const index = Math.floor(N * alpha);
         const label = Math.round((1 - alpha) * 100);
+        
         riskData[`VaR${label}`] = sortedPayoffs[index] - 100;
+        
+        // CVaR: 尾部極端情況的平均損失
         const worstCase = sortedPayoffs.slice(0, index);
         const avgWorstPayoff = worstCase.reduce((a, b) => a + b, 0) / (worstCase.length || 1);
         riskData[`CVaR${label}`] = avgWorstPayoff - 100;
@@ -438,54 +453,79 @@ function runBacktest(p) {
     for (let d = 1; d <= D; d++) {
         const currentIndex = startIndex + d;
         const currentPrices = symbols.map(s => globalStockData[s].prices[currentIndex]);
+
+        // 1. 每日判斷 KI (AKI 為觀察期間任一資產跌破)
         for (let i = 0; i < symbols.length; i++) {
             if (kiType === "AKI" && currentPrices[i] < AKI[i]) {
-                kiTouched = true; }}
+                kiTouched = true;
+            }
+        }
+
+        // 2. 每日判斷 KO (保證期間結束後，每天觀察是否所有資產同時高於 KO)
         const minKoDays = (p.gMonths * 21);
         if (d >= minKoDays) {
+            // 判斷當天所有股票是否都高於等於 KO 價格
             const isKOToday = currentPrices.every((price, i) => price >= KO[i]);
             
             if (isKOToday) {
                 event = `Knock-Out (第 ${d} 天提前出場)`; 
                 daysToEvent = d;
+                // 報酬計算：通常按實際持有天數折算年化利息
                 finalPayoff = 100 * (1 + (d / 252) * R); 
-                break; }}
+                break; // 提前結束迴圈
+            }
+        }
+
+        // 3. 到期日判斷 (如果前面沒中途 KO)
         if (d === D) {
+            // EKI 到期才看是否跌破
             if (kiType === "EKI" && currentPrices.some((s, i) => s < AKI[i])) {
                 kiTouched = true;
             }
 
+            // 判斷最後領回 (未觸及 KI 或 最終價格都大於等於 Strike)
             if (!kiTouched || currentPrices.every((s, i) => s >= K[i])) {
                 event = "Full Repayment (滿期贖回)"; 
                 finalPayoff = 100 * (1 + (D / 252) * R);
             } else {
                 event = "KI Delivery (實物交割)";
+                // 計算最差表現資產的報酬
                 const perf = currentPrices.map((s, i) => s / K[i]);
                 const worstPerf = Math.min(...perf); 
-                finalPayoff = 100 * (D / 252 * R) + (100 * worstPerf);}}}
+                // 報酬 = 應得利息 + (100 * 最差資產表現)
+                finalPayoff = 100 * (D / 252 * R) + (100 * worstPerf);
+            }
+        }
+    }
 
+    // 更新介面
     document.getElementById('btStart').innerText = globalStockData[symbols[0]].labels[startIndex];
     document.getElementById('btEnd').innerText = globalStockData[symbols[0]].labels[startIndex + daysToEvent];
     document.getElementById('btStatus').innerText = event;
     document.getElementById('btDays').innerText = `${daysToEvent} Days`;
     document.getElementById('btReturn').innerText = (finalPayoff - 100).toFixed(2) + "%";
-    document.getElementById('btReturn').style.color = (finalPayoff >= 100) ? "var(--success)" : "var(--danger)";} 
+    document.getElementById('btReturn').style.color = (finalPayoff >= 100) ? "var(--success)" : "var(--danger)";
+} 
 function dynamicCholesky(A) {
     const n = A.length; let L = Array.from({length: n}, () => new Array(n).fill(0));
     for (let i = 0; i < n; i++) { for (let j = 0; j <= i; j++) {
         let s = 0; for (let k = 0; k < j; k++) s += L[i][k] * L[j][k];
         L[i][j] = (i === j) ? Math.sqrt(Math.max(A[i][i] - s, 0)) : (1.0 / L[j][j] * (A[i][j] - s));
-    } } return L;}
+    } } return L;
+}
 
 function renderMCResults(res, params) {
+    // 強制在渲染前註冊插件 (解決標籤不顯示的問題)
     if (typeof ChartDataLabels !== 'undefined') {
         Chart.register(ChartDataLabels);
     }
 
+    // 更新上方數值卡片
     document.getElementById('avgReturn').innerText = res.avgReturn.toFixed(4);
     document.getElementById('avgPeriod').innerText = res.avgDay.toFixed(1) + " Days";
     document.getElementById('volPeriodLabel').innerText = `(${currentVolDays}D)`;
-const riskLevels = [99, 97, 95, 90, 85];
+document.getElementById('hiddenReturn').innerText = `µ: ${res.avgReturn.toFixed(2)}%`;
+const riskLevels = [99, 97, 95, 90, 85]; // 確保這裡有定義層級
     riskLevels.forEach(lvl => {
         const varVal = res.riskResults[`VaR${lvl}`];
         const cvarVal = res.riskResults[`CVaR${lvl}`];
@@ -494,24 +534,30 @@ const riskLevels = [99, 97, 95, 90, 85];
         const cvarElem = document.getElementById(`cvar${lvl}`);
 
         if (varElem && cvarElem) {
+            // 顯示百分比並強制顯示正負號
             varElem.innerText = (varVal / 100).toLocaleString(undefined, {
                 style: 'percent', 
                 minimumFractionDigits: 2, 
                 signDisplay: 'always'
             });
+            // 負數顯示紅色 (#e74c3c)，正數顯示綠色 (#2ecc71)
             varElem.style.color = varVal < 0 ? "#e74c3c" : "#2ecc71";
+
             cvarElem.innerText = (cvarVal / 100).toLocaleString(undefined, {
                 style: 'percent', 
                 minimumFractionDigits: 2, 
                 signDisplay: 'always'
             });
-            cvarElem.style.color = cvarVal < 0 ? "#e74c3c" : "#2ecc71";}});
-
+            cvarElem.style.color = cvarVal < 0 ? "#e74c3c" : "#2ecc71";
+        }
+    });
+    // 更新波動率列表
     const volList = document.getElementById('volList');
     volList.innerHTML = params.symbols.map((s, i) => 
         `<div class="vol-item"><span class="vol-symbol">${s}</span><span class="vol-num">${(params.V[i]*100).toFixed(2)}%</span></div>`
     ).join('');
 
+    // --- 蒙地卡羅長條圖 ---
     if(mcScenarioChart) mcScenarioChart.destroy();
     mcScenarioChart = new Chart(document.getElementById('scenarioChart'), { 
         type: 'bar',
@@ -520,25 +566,29 @@ const riskLevels = [99, 97, 95, 90, 85];
             datasets: [{ 
                 label: 'Probability (%)', 
                 data: res.scenarioProbs.map(v => v.toFixed(2)), 
-                backgroundColor: '#1a73e8' }] }, 
+                backgroundColor: '#1a73e8' 
+            }] 
+        }, 
         options: { 
             responsive: true, 
             maintainAspectRatio: false, 
             layout: {
-                padding: { top: 10 } },
+                padding: { top: 10 } // 增加頂部間距，防止文字被切掉
+            },
             plugins: { 
+                // 數據標籤的核心配置
                 datalabels: {
-                    display: true, 
-                    anchor: 'end', 
-                    align: 'top', 
-                    offset: 5,        
-                    color: '#202124',  
+                    display: true,      // 強制顯示
+                    anchor: 'end',      // 位置在長條末端
+                    align: 'top',       // 對齊長條上方
+                    offset: 5,          // 距離長條 5px
+                    color: '#202124',   // 數字顏色
                     font: {
                         weight: 'bold',
-                        size: 13 
+                        size: 13        // 稍微放大一點
                     },
                     formatter: function(value) {
-                        return (value > 0) ? value + '%' : ''; 
+                        return (value > 0) ? value + '%' : ''; // 只有大於 0 才顯示
                     }
                 },
                 title: { 
@@ -552,13 +602,14 @@ const riskLevels = [99, 97, 95, 90, 85];
                 x: { ticks: { font: { size: 12 } } },
                 y: { 
                     beginAtZero: true,
-                    suggestedMax: Math.max(...res.scenarioProbs) * 1.25, 
+                    suggestedMax: Math.max(...res.scenarioProbs) * 1.25, // 預留更多空間給標籤
                     ticks: { font: { size: 12 } } 
                 }
             } 
         } 
     });
 
+    // --- UL實物履約圓餅圖 ---
     if(mcWorstChart) mcWorstChart.destroy();
     mcWorstChart = new Chart(document.getElementById('worstChart'), { 
         type: 'pie', 
@@ -684,8 +735,11 @@ function updateSingleStockChart(symbol) {
         }
     }
  
+    // --- 【核心邏輯修改】長期回測統計 & 安全性分析 ---
     const kiThreshold = parseFloat(document.getElementById('kiPct').value) / 100;
     const strikeThreshold = parseFloat(document.getElementById('strikePct').value) / 100;
+   
+    // 嚴格將分析樣本限制在 displayPrices (例如 5 年) 範圍內
     const analysisPrices = displayPrices;
     const totalAvailableDays = analysisPrices.length;
    
@@ -694,6 +748,9 @@ function updateSingleStockChart(symbol) {
     let expiredBelowStrikeCases = 0;
     let postExpiryRecoveryDaysList = [];
     let currentlyStillUnrecoveredCount = 0;
+ 
+    // 迴圈終點：totalAvailableDays - holdDays
+    // 這樣最後一個進場點 i 的到期日剛好是 analysisPrices 的最後一天 (今天)
     for (let i = 0; i <= totalAvailableDays - holdDays; i++) {
         const entry = analysisPrices[i];
         const strikeVal = entry * strikeThreshold;
@@ -710,6 +767,7 @@ function updateSingleStockChart(symbol) {
             endBelowStrikeCount++;
             expiredBelowStrikeCases++;
            
+            // 計算該到期日在 allPrices 中的全局索引，以便利用剩餘的所有歷史數據觀察恢復狀況
             const expiryGlobalIdx = (allPrices.length - totalAvailableDays) + i + holdDays;
             const futurePrices = allPrices.slice(expiryGlobalIdx);
             const recoverIdx = futurePrices.findIndex(p => p >= strikeVal);
@@ -732,6 +790,7 @@ function updateSingleStockChart(symbol) {
     const avgRecoveryDays = postExpiryRecoveryDaysList.length > 0 ? (postExpiryRecoveryDaysList.reduce((a,b)=>a+b)/postExpiryRecoveryDaysList.length).toFixed(1) : "N/A";
     const stillUnrecoveredPct = expiredBelowStrikeCases > 0 ? (currentlyStillUnrecoveredCount / expiredBelowStrikeCases * 100).toFixed(1) : 0;
  
+    // 取得起始與結束進場日期
     const firstEntryDate = displayLabels[0];
     const lastEntryDate = displayLabels[totalAvailableDays - holdDays];
 
