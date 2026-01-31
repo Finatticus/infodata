@@ -227,7 +227,7 @@ label {
     <div class="input-group" title="設定上不能超過天期"><label>保證領息期間 (月)</label><input type="number" id="guaranteedMonths" value="1" min="1"></div>
 <div style="grid-column: 1 / -1; height: 10px; border-top: 1px dashed var(--border); margin-top: 10px; padding-top: 10px;"></div>
 
-<div class="input-group" title="免費API:&#10;每分鐘跑一次模型&#10;單日約可以跑130次">
+<div class="input-group" title="免費API:&#10;每分鐘8次API請求&#10;單日800次">
     <label title="免費API:&#10;每分鐘跑一次模型&#10;單日約可以跑130次">
         API Key <span style="cursor:help; color:var(--primary);"></span>
     </label>
@@ -256,7 +256,9 @@ label {
         <option value="1">1 Year</option>
         <option value="2">2 Years</option>
         <option value="3">3 Years</option>
+        <option value="4">4 Years</option>
         <option value="5" selected>5 Years</option>
+        <option value="7">7 Years</option>
         <option value="10">10 Years</option>
     </select>
 </div>
@@ -512,17 +514,14 @@ function runSimulation(p) {
     // 計算風險指標 VaR / CVaR
     const sortedPayoffs = [...payoffs].sort((a, b) => a - b);
     const riskData = {};
-    [0.01, 0.03, 0.05, 0.10, 0.15].forEach(alpha => {
+[0.01, 0.03, 0.05, 0.10, 0.15].forEach(alpha => {
         const index = Math.max(0, Math.floor(N * alpha));
         const label = Math.round((1 - alpha) * 100);
-        // VaR：相對於面額 100 的最大損失百分比
-        const varVal = Math.min(0, sortedPayoffs[index] - 100);
+        const varVal = sortedPayoffs[index] - 100;
         riskData[`VaR${label}`] = varVal;
-        
-        // CVaR：極端情況下的平均損失百分比
         const worstPaths = sortedPayoffs.slice(0, index + 1);
         const avgPayoff = worstPaths.reduce((a, b) => a + b, 0) / (worstPaths.length || 1);
-        riskData[`CVaR${label}`] = Math.min(0, avgPayoff - 100);
+        riskData[`CVaR${label}`] = avgPayoff - 100;
     });
 
     return {
