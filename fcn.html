@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FCN Analysis Terminal</title>
+    <title>SN Quant Analytics</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
@@ -12,21 +12,22 @@
         :root {
             --bg-color: #f4f7fa;
             --card-bg: #ffffff;
-            --primary: #1a73e8;
-            --text-main: #202124;
+            --primary: #1a4da1;
+            --text-main: #2c3e50;
             --text-sub: #5f6368;
             --border: #dadce0;
             --accent: #e8f0fe;
             --danger: #d93025;
             --success: #188038;
             --warning: #f29900;
+--shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); padding: 20px; margin: 0; }
-        .container { max-width: 1500px; margin: 0 auto; }
+        .container { max-width: 1650px; margin: 0 auto; }
         h1 { color: var(--primary); text-align: left; font-size: 1.8rem; margin-bottom: 25px; font-weight: 500; border-bottom: 2px solid var(--primary); padding-bottom: 10px; }
         h3 { color: var(--text-main); font-weight: 500; margin-top: 0;}
         .config-panel { background: var(--card-bg); padding: 25px; border-radius: 8px; margin-bottom: 25px; box-shadow: 0 1px 3px rgba(60,64,67,.3); border: 1px solid var(--border); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; }
         .input-group { display: flex; flex-direction: column; }
 label {
     display: flex;
@@ -141,13 +142,13 @@ label {
     display: flex;
     gap: 2px;
     background: #eee;
-    padding: 2px;
+    padding: 3px;
     border-radius: 4px;
     align-self: center;
 }
 .mini-btn {
-    padding: 2px 6px;
-    font-size: 10px;
+    padding: 4px 5px;
+    font-size: 11px;
     cursor: pointer;
     border-radius: 3px;
     background: transparent;
@@ -178,11 +179,18 @@ label {
 <body>
 <div class="container">
     <h1 style="display: flex; justify-content: space-between; align-items: center;">
-    <span>Fixed Coupon Note (FCN) Analysis Terminal</span>
+    <span>SN QUANT ANALYTICS</span>
     <span id="hiddenReturn" style="color: var(--bg-color); font-size: 1rem; user-select: all;">-</span>
 </h1>
     <div class="config-panel">
 <div class="grid">
+<div class="input-group" title="FCN: 每月固定配息&#10;DRA: 每月浮動計息 (保證領息期間後，當日所有連結股票收盤價都在履約價Strike之上才計息)">
+    <label>產品架構</label>
+    <select id="couponType" class="form-control">
+        <option value="Fixed">FCN (固定配息)</option>
+        <option value="Floating">DRA (浮動配息)</option>
+    </select>
+</div>
     <div class="input-group" title="一個連結標的會抓一次API&#10;... 以此類推"><label>股票代號 (用逗號分隔)</label><input type="text" id="symbols" value="TSLA,TSM,NVDA"></div>
     <div class="input-group" title="不保本商品超過12個月要高資產客戶才能下單唷"><label>天期 (月)</label><input type="number" id="months" value="6"></div>
 <div class="input-group" title="默認為每月配息&#10;配息頻率暫時不開放調整"><label>年化配息率 Coupon (%)</label><input type="number" id="coupon" value="15" step="0.01"></div>
@@ -207,7 +215,7 @@ label {
 
     <div class="input-group" title="觀察期間內達到提前出場條件&#10;商品就提前結束">
         <div class="label-action-group">
-            <label>提前出場 (%)</label>
+            <label>提前出場 KO (%)</label>
             <div style="display:flex; gap:5px;">
                 <div class="mini-btn-group" data-target="koFreq" title="Daily:每日觀察&#10;Monthly:每月觀察">
                     <div class="mini-btn active" data-value="Daily">Daily</div>
@@ -288,7 +296,7 @@ label {
                 <div class="metric-header">
                     <span class="metric-icon">📜 </span><span class="metric-title">
 <span class="metric-title">歷史波動度 HISTORICAL VOLATILITY</span>
-                    <span id="volPeriodLabel" style="font-size:0.7rem; color:var(--text-sub);">(-)</span>
+                    <span id="volPeriodLabel" style="font-size:0.9rem; color:var(--text-sub);">(-)</span>
                 </div>
                 <div id="volList" class="vol-grid">
                     <div class="vol-item"><span class="vol-symbol">N/A</span><span class="vol-num">-</span></div>
@@ -443,12 +451,18 @@ function runSimulation(p) {
     let scCounts = new Array(totalMonths + 2).fill(0); 
     let worstCounts = new Array(dim).fill(0);
     const minKoDays = gMonths * 21;
+    
+    // 獲取配息模式 (從 UI 讀取，若無此 UI 則預設為 Fixed)
+    const couponType = document.getElementById('couponType') ? document.getElementById('couponType').value : "Fixed";
 
     for (let n = 0; n < N; n++) {
         let St = [...S0];
         let kiTouched = (kiType === "NA"); 
         let ended = false;
         let koReachedEver = new Array(dim).fill(false);
+        
+        // 累計利息計數
+        let accruedCouponDays = 0;
         
         for (let d = 1; d <= D; d++) {
             let rawZ = Array.from({length: dim}, () => seededRandn(rng));
@@ -460,6 +474,15 @@ function runSimulation(p) {
                 St[i] *= Math.exp((r - 0.5 * V[i]**2) * dt + V[i] * Math.sqrt(dt) * dz[i]);
                 if (kiType === "AKI" && St[i] < AKI[i]) kiTouched = true;
             }
+
+            // --- 浮動配息計算邏輯 ---
+            let isGuaranteed = d <= minKoDays;
+            let allAboveStrike = St.every((s, i) => s >= K[i]);
+            
+            if (couponType === "Fixed" || isGuaranteed || allAboveStrike) {
+                accruedCouponDays++;
+            }
+            // -----------------------
 
             // KO 邏輯
             let currentStepIdx = Math.floor((d - 1) / 21);
@@ -478,8 +501,8 @@ function runSimulation(p) {
                         St.every((s, i) => s >= currentKO[i]);
 
                     if (isKoTriggered) {
-                        // 票息計算：面額100 * (1 + 持有期間配息)
-                        let payoff = 100 * (1 + (d / 252) * R) * Math.exp(-r * (d / 252));
+                        // 票息計算：使用實際累計的天數
+                        let payoff = 100 * (1 + (accruedCouponDays / 252) * R) * Math.exp(-r * (d / 252));
                         payoffs.push(payoff);
                         periods.push(d);
                         let mIdx = Math.min(Math.floor((d - 1) / 21), totalMonths - 1);
@@ -494,16 +517,18 @@ function runSimulation(p) {
             if (d === D && !ended) {
                 if (kiType === "EKI" && St.some((s, i) => s < AKI[i])) kiTouched = true;
                 let disc = Math.exp(-r * (D / 252));
+                let totalCoupon = (accruedCouponDays / 252) * R;
+                
                 if (!kiTouched || St.every((s, i) => s >= K[i])) {
-                    payoffs.push(100 * (1 + (D / 252) * R) * disc);
+                    payoffs.push(100 * (1 + totalCoupon) * disc);
                     scCounts[totalMonths]++;
                 } else {
-                    let perf = St.map((s, i) => s / S0[i]); // 修改為相對於初始價格的表現
+                    let perf = St.map((s, i) => s / S0[i]);
                     let mP = Math.min(...perf);
                     let worstAssetIdx = perf.indexOf(mP);
                     worstCounts[worstAssetIdx]++;
-                    // 實物交割損益：(總配息 + 最終資產價值)
-                    payoffs.push((100 * (D / 252 * R) + 100 * (St[worstAssetIdx] / K[worstAssetIdx])) * disc);
+                    // 實物交割：累計利息 + 最差資產價值
+                    payoffs.push((100 * totalCoupon + 100 * (St[worstAssetIdx] / K[worstAssetIdx])) * disc);
                     scCounts[totalMonths + 1]++;
                 }
                 periods.push(D);
@@ -514,7 +539,7 @@ function runSimulation(p) {
     // 計算風險指標 VaR / CVaR
     const sortedPayoffs = [...payoffs].sort((a, b) => a - b);
     const riskData = {};
-[0.01, 0.03, 0.05, 0.10, 0.15].forEach(alpha => {
+    [0.01, 0.03, 0.05, 0.10, 0.15].forEach(alpha => {
         const index = Math.max(0, Math.floor(N * alpha));
         const label = Math.round((1 - alpha) * 100);
         const varVal = sortedPayoffs[index] - 100;
@@ -525,7 +550,7 @@ function runSimulation(p) {
     });
 
     return {
-        avgReturn: (math.mean(payoffs) - 100), // 淨報酬百分比
+        avgReturn: (math.mean(payoffs) - 100), 
         avgDay: math.mean(periods),
         scenarioProbs: scCounts.map(c => (c / N) * 100),
         worstAssetProbs: worstCounts.map(c => (c / N) * 100),
@@ -551,21 +576,29 @@ function runBacktest(p) {
     const baseKO = startPrices.map(s => s * KO_Pct);
     const AKI = startPrices.map(s => s * KI_Pct);
     const K = startPrices.map(s => s * Strike_Pct);
-    
     const minKoDays = gMonths * 21;
-    let kiTouched = false;
+    const couponType = document.getElementById('couponType') ? document.getElementById('couponType').value : "Fixed";
     
-    // 如果類型是 NA，視同已觸及 KI，期末只要低於履約價就交割
-    if (kiType === "NA") kiTouched = true;
-
+    let kiTouched = (kiType === "NA");
     let event = "Maturity (到期)";
     let daysToEvent = D;
     let finalPayoff = 0;
     let koReachedEver = new Array(symbols.length).fill(false);
+    
+    // 累計回測利息
+    let accruedCouponDays = 0;
 
     for (let d = 1; d <= D; d++) {
         const currentIndex = startIndex + d;
         const currentPrices = symbols.map(s => globalStockData[s].prices[currentIndex]);
+
+        // --- 浮動配息計算邏輯 ---
+        let isGuaranteed = d <= minKoDays;
+        let allAboveStrike = currentPrices.every((price, i) => price >= K[i]);
+        if (couponType === "Fixed" || isGuaranteed || allAboveStrike) {
+            accruedCouponDays++;
+        }
+        // -----------------------
 
         let currentStepIdx = Math.floor((d - 1) / 21);
         let currentKO = baseKO.map(b => b * (1 + currentStepIdx * koStep));
@@ -588,7 +621,7 @@ function runBacktest(p) {
             if (isKoTriggered) {
                 event = `KO 提前出場 (第 ${d} 天提前出場)`;
                 daysToEvent = d;
-                finalPayoff = 100 * (1 + (d / 252) * R);
+                finalPayoff = 100 * (1 + (accruedCouponDays / 252) * R);
                 break;
             }
         }
@@ -597,14 +630,15 @@ function runBacktest(p) {
             if (kiType === "EKI" && currentPrices.some((s, i) => s < AKI[i])) {
                 kiTouched = true;
             }
+            let totalCoupon = (accruedCouponDays / 252) * R;
             if (!kiTouched || currentPrices.every((s, i) => s >= K[i])) {
                 event = "Full Repayment (滿期贖回)"; 
-                finalPayoff = 100 * (1 + (D / 252) * R);
+                finalPayoff = 100 * (1 + totalCoupon);
             } else {
                 event = "KI Delivery (實物交割)";
                 const perf = currentPrices.map((s, i) => s / K[i]);
                 const worstPerf = Math.min(...perf); 
-                finalPayoff = 100 * (D / 252 * R) + (100 * worstPerf);
+                finalPayoff = (100 * totalCoupon) + (100 * worstPerf);
             }
         }
     }
@@ -616,6 +650,7 @@ function runBacktest(p) {
     document.getElementById('btReturn').innerText = (finalPayoff - 100).toFixed(2) + "%";
     document.getElementById('btReturn').style.color = (finalPayoff >= 100) ? "var(--success)" : "var(--danger)";
 }
+
 function dynamicCholesky(A) {
     const n = A.length; let L = Array.from({length: n}, () => new Array(n).fill(0));
     for (let i = 0; i < n; i++) { for (let j = 0; j <= i; j++) {
@@ -1107,6 +1142,7 @@ document.getElementById('runBtn').addEventListener('click', async () => {
             return (math.std(rets) * Math.sqrt(252)) * volMultiplier;
         });
 
+
         const retsMatrix = [];
         for (let i = 0; i < currentVolDays; i++) {
             let row = []; let isValid = true;
@@ -1141,7 +1177,7 @@ document.getElementById('runBtn').addEventListener('click', async () => {
             kiType: kiType,
             koStep: koStep / 100
         };
-
+document.getElementById('volPeriodLabel').innerText = `(${params.D}天)`;
         const mcResult = runSimulation(params);
         renderMCResults(mcResult, params);
         renderCorrelationHeatmap(params.symbols, params.COR);
